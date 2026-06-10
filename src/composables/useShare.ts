@@ -47,7 +47,7 @@ export function useShare() {
     const name = settingsStore.settings.myName || 'My'
     await Share.share({
       title: 'Werkschema',
-      text: `${name}'s work schedule:\n\n${link}`,
+      text: `📅 ${name} heeft zijn/haar werkschema gedeeld!\n\nKopieer de link hieronder en plak hem in Werkschema (Instellingen → Importeer):\n\n${link}`,
       dialogTitle: 'Share your schedule',
     })
   }

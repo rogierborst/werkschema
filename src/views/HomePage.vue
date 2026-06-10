@@ -256,6 +256,9 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+ion-fab {
+  margin-bottom: env(safe-area-inset-bottom);
+}
 .filter-bar {
   display: flex;
   flex-wrap: nowrap;
