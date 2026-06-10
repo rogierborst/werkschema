@@ -30,8 +30,10 @@ export function useShare() {
     return `werkschema://import?data=${encodePayload(payload)}`
   }
 
-  function parseDeepLink(url: string): SharePayload | null {
+  function parseDeepLink(text: string): SharePayload | null {
     try {
+      const match = text.match(/werkschema:\/\/\S+/)
+      const url = match ? match[0] : text
       const u = new URL(url)
       const data = u.searchParams.get('data')
       if (!data) return null
