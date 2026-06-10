@@ -26,10 +26,22 @@ export const useShiftsStore = defineStore('shifts', () => {
     await persist()
   }
 
+  async function updateShift(shift: Shift) {
+    // Remove old version by id, then upsert by date (handles date conflicts)
+    shifts.value = shifts.value.filter(s => s.id !== shift.id)
+    const idx = shifts.value.findIndex(s => s.date === shift.date)
+    if (idx >= 0) {
+      shifts.value[idx] = shift
+    } else {
+      shifts.value.push(shift)
+    }
+    await persist()
+  }
+
   async function removeShift(id: string) {
     shifts.value = shifts.value.filter(s => s.id !== id)
     await persist()
   }
 
-  return { shifts, load, addShift, removeShift }
+  return { shifts, load, addShift, updateShift, removeShift }
 })

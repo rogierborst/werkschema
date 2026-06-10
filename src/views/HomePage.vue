@@ -43,7 +43,11 @@
             v-for="shift in group.shifts"
             :key="shift.id"
           >
-            <ion-item>
+            <ion-item
+                :button="shift.isOwn"
+                :detail="false"
+                @click="shift.isOwn ? onEditShift(shift) : undefined"
+              >
               <ion-avatar slot="start" :style="{ background: shift.color, width: '10px', borderRadius: '2px', marginRight: '12px' }" />
               <ion-label>
                 <h3>{{ shiftLabel(shift) }}</h3>
@@ -71,10 +75,12 @@
       </ion-fab-button>
     </ion-fab>
 
-    <add-shift-modal
+    <shift-form-modal
       :is-open="isAddModalOpen"
-      @did-dismiss="isAddModalOpen = false"
+      :shift="editingShift"
+      @did-dismiss="isAddModalOpen = false; editingShift = undefined"
       @shift-added="onShiftAdded"
+      @shift-updated="onShiftUpdated"
     />
   </ion-page>
 </template>
@@ -94,7 +100,7 @@ import { usePeopleStore } from '@/stores/people'
 import { useSettingsStore } from '@/stores/settings'
 import { useShare } from '@/composables/useShare'
 import { useNotifications } from '@/composables/useNotifications'
-import AddShiftModal from '@/components/AddShiftModal.vue'
+import ShiftFormModal from '@/components/ShiftFormModal.vue'
 import type { Shift } from '@/types'
 
 const PERSON_COLORS = ['#3880ff', '#2dd36f', '#eb445a', '#ffc409', '#92949c', '#6a64ff']
@@ -108,6 +114,7 @@ const { scheduleNextDayReminder } = useNotifications()
 const contentRef = ref()
 const todayDividerRef = ref<HTMLElement | null>(null)
 const isAddModalOpen = ref(false)
+const editingShift = ref<import('@/types').Shift | undefined>(undefined)
 const activeFilter = ref<string>('all')
 
 const todayStr = new Date().toISOString().split('T')[0]
@@ -215,8 +222,23 @@ async function onDeleteShift(id: string) {
   await scheduleNextDayReminder()
 }
 
+function onEditShift(shift: ShiftEntry) {
+  editingShift.value = {
+    id: shift.id,
+    date: shift.date,
+    type: shift.type,
+    customLabel: shift.customLabel,
+  }
+  isAddModalOpen.value = true
+}
+
 async function onShiftAdded(shift: Shift) {
   await shiftsStore.addShift(shift)
+  await scheduleNextDayReminder()
+}
+
+async function onShiftUpdated(shift: Shift) {
+  await shiftsStore.updateShift(shift)
   await scheduleNextDayReminder()
 }
 
