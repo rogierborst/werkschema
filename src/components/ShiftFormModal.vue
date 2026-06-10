@@ -58,6 +58,8 @@
         id="shift-date"
         presentation="date"
         :value="selectedDate"
+        show-default-buttons
+        done-text="Pick"
         @ion-change="onDateChange"
       />
     </ion-modal>
@@ -82,6 +84,8 @@ const shiftsStore = useShiftsStore()
 const { scheduleNextDayReminder } = useNotifications()
 
 const todayStr = new Date().toISOString().split('T')[0]
+let lastUsedDate = todayStr
+
 const selectedDate = ref(todayStr)
 const selectedType = ref<ShiftType>('morning')
 const customLabel = ref('')
@@ -92,7 +96,7 @@ watch(() => props.isOpen, (open) => {
     selectedType.value = props.shift.type
     customLabel.value = props.shift.customLabel ?? ''
   } else if (open) {
-    selectedDate.value = todayStr
+    selectedDate.value = lastUsedDate
     selectedType.value = 'morning'
     customLabel.value = ''
   }
@@ -118,7 +122,7 @@ async function onAdd() {
     await shiftsStore.updateShift(shift)
   } else {
     await shiftsStore.addShift(shift)
-    selectedDate.value = todayStr
+    lastUsedDate = shift.date
     selectedType.value = 'morning'
     customLabel.value = ''
   }
