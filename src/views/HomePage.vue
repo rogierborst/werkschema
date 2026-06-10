@@ -205,8 +205,8 @@ function formatDateLabel(dateStr: string): string {
 }
 
 function shiftLabel(shift: ShiftEntry): string {
-  if (shift.type === 'morning') return '🌅 Morning'
-  if (shift.type === 'evening') return '🌆 Evening'
+  if (shift.type === 'morning') return '☀️ Ochtend'
+  if (shift.type === 'evening') return '🌙 Avond'
   return `✏️ ${shift.customLabel || 'Custom'}`
 }
 
