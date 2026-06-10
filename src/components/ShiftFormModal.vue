@@ -27,7 +27,7 @@
       </ion-item>
       <ion-radio-group v-model="selectedType">
         <ion-item>
-          <ion-radio value="morning" label-placement="end">☀️ Uchtend</ion-radio>
+          <ion-radio value="morning" label-placement="end">☀️ Ochtend</ion-radio>
         </ion-item>
         <ion-item>
           <ion-radio value="evening" label-placement="end">🌙 Avond</ion-radio>
@@ -71,21 +71,21 @@ import {
   IonContent, IonItem, IonLabel, IonRadioGroup, IonRadio, IonInput,
   IonDatetime, IonDatetimeButton,
 } from '@ionic/vue'
+import { useShiftsStore } from '@/stores/shifts'
+import { useNotifications } from '@/composables/useNotifications'
 import type { Shift, ShiftType } from '@/types'
 
 const props = defineProps<{ isOpen: boolean; shift?: Shift }>()
-const emit = defineEmits<{
-  (e: 'did-dismiss'): void
-  (e: 'shift-added', shift: Shift): void
-  (e: 'shift-updated', shift: Shift): void
-}>()
+const emit = defineEmits<{ (e: 'did-dismiss'): void }>()
+
+const shiftsStore = useShiftsStore()
+const { scheduleNextDayReminder } = useNotifications()
 
 const todayStr = new Date().toISOString().split('T')[0]
 const selectedDate = ref(todayStr)
 const selectedType = ref<ShiftType>('morning')
 const customLabel = ref('')
 
-// Pre-populate fields when editing an existing shift
 watch(() => props.isOpen, (open) => {
   if (open && props.shift) {
     selectedDate.value = props.shift.date
@@ -104,7 +104,7 @@ function onDateChange(ev: CustomEvent) {
   selectedDate.value = value.includes('T') ? value.split('T')[0] : value
 }
 
-function onAdd() {
+async function onAdd() {
   if (selectedType.value === 'custom' && !customLabel.value.trim()) return
 
   const shift: Shift = {
@@ -115,17 +115,15 @@ function onAdd() {
   }
 
   if (props.shift) {
-    emit('shift-updated', shift)
+    await shiftsStore.updateShift(shift)
   } else {
-    emit('shift-added', shift)
-  }
-  emit('did-dismiss')
-
-  // Reset for next time (only when adding, editing reset is handled by watcher)
-  if (!props.shift) {
+    await shiftsStore.addShift(shift)
     selectedDate.value = todayStr
     selectedType.value = 'morning'
     customLabel.value = ''
   }
+
+  await scheduleNextDayReminder()
+  emit('did-dismiss')
 }
 </script>

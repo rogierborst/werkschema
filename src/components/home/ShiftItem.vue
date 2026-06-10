@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>()
 
 function shiftLabel(shift: ShiftEntry): string {
-  if (shift.type === 'morning') return '☀️ Uchtend'
+  if (shift.type === 'morning') return '☀️ Ochtend'
   if (shift.type === 'evening') return '🌙 Avond'
   return `✏️ ${shift.customLabel || 'Custom'}`
 }
