@@ -24,3 +24,20 @@ export interface SharePayload {
   name: string
   shifts: Shift[]
 }
+
+export interface ShiftEntry {
+  id: string
+  date: string
+  type: ShiftType
+  customLabel?: string
+  ownerName: string
+  isOwn: boolean
+  color: string
+}
+
+export interface DateGroup {
+  date: string
+  label: string
+  isToday: boolean
+  shifts: ShiftEntry[]
+}

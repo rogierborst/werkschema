@@ -1,99 +1,12 @@
-<template>
-  <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Werkschema</ion-title>
-        <ion-buttons slot="end">
-          <ion-button @click="onShare" title="Share schedule">
-            <ion-icon slot="icon-only" :icon="shareOutline" />
-          </ion-button>
-          <ion-button router-link="/settings" title="Settings">
-            <ion-icon slot="icon-only" :icon="settingsOutline" />
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content ref="contentRef">
-      <!-- Person filter chips -->
-      <div class="filter-bar" v-if="allPeople.length > 0">
-        <ion-chip
-          v-for="person in filterOptions"
-          :key="person.key"
-          :color="activeFilter === person.key ? 'primary' : undefined"
-          :outline="activeFilter !== person.key"
-          @click="activeFilter = person.key"
-        >
-          <ion-label>{{ person.label }}</ion-label>
-        </ion-chip>
-      </div>
-
-      <!-- Shift list -->
-      <ion-list v-if="dateGroups.length > 0" lines="full">
-        <template v-for="group in dateGroups" :key="group.date">
-          <ion-item-divider
-            :ref="group.isToday ? (el) => (todayDividerRef = el as HTMLElement) : undefined"
-            :color="group.isToday ? 'primary' : undefined"
-            sticky
-          >
-            <ion-label>{{ group.label }}</ion-label>
-          </ion-item-divider>
-
-          <ion-item-sliding
-            v-for="shift in group.shifts"
-            :key="shift.id"
-          >
-            <ion-item
-                :button="shift.isOwn"
-                :detail="false"
-                @click="shift.isOwn ? onEditShift(shift) : undefined"
-              >
-              <ion-avatar slot="start" :style="{ background: shift.color, width: '10px', borderRadius: '2px', marginRight: '12px' }" />
-              <ion-label>
-                <h3>{{ shiftLabel(shift) }}</h3>
-                <p>{{ shift.ownerName }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item-options side="end">
-              <ion-item-option color="danger" @click="onDeleteShift(shift)">
-                <ion-icon slot="icon-only" :icon="trashOutline" />
-              </ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-        </template>
-      </ion-list>
-
-      <div v-else class="empty-state">
-        <ion-icon :icon="calendarOutline" size="large" />
-        <p>No shifts yet. Tap + to add your first shift.</p>
-      </div>
-    </ion-content>
-
-    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-      <ion-fab-button @click="isAddModalOpen = true">
-        <ion-icon :icon="addOutline" />
-      </ion-fab-button>
-    </ion-fab>
-
-    <shift-form-modal
-      :is-open="isAddModalOpen"
-      :shift="editingShift"
-      @did-dismiss="isAddModalOpen = false; editingShift = undefined"
-      @shift-added="onShiftAdded"
-      @shift-updated="onShiftUpdated"
-    />
-  </ion-page>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon,
-  IonContent, IonList, IonItem, IonItemDivider, IonItemSliding, IonItemOptions,
-  IonItemOption, IonLabel, IonAvatar, IonChip, IonFab, IonFabButton,
+  IonContent, IonList, IonItemDivider, IonLabel,
+  IonFab, IonFabButton,
 } from '@ionic/vue'
 import {
-  shareOutline, settingsOutline, addOutline, trashOutline, calendarOutline,
+  shareOutline, settingsOutline, addOutline, calendarOutline,
 } from 'ionicons/icons'
 import { useShiftsStore } from '@/stores/shifts'
 import { usePeopleStore } from '@/stores/people'
@@ -101,7 +14,9 @@ import { useSettingsStore } from '@/stores/settings'
 import { useShare } from '@/composables/useShare'
 import { useNotifications } from '@/composables/useNotifications'
 import ShiftFormModal from '@/components/ShiftFormModal.vue'
-import type { Shift } from '@/types'
+import FilterBar from '@/components/home/FilterBar.vue'
+import ShiftItem from '@/components/home/ShiftItem.vue'
+import type { Shift, ShiftEntry, DateGroup } from '@/types'
 
 const PERSON_COLORS = ['#3880ff', '#2dd36f', '#eb445a', '#ffc409', '#92949c', '#6a64ff']
 
@@ -114,27 +29,10 @@ const { scheduleNextDayReminder } = useNotifications()
 const contentRef = ref()
 const todayDividerRef = ref<HTMLElement | null>(null)
 const isAddModalOpen = ref(false)
-const editingShift = ref<import('@/types').Shift | undefined>(undefined)
+const editingShift = ref<Shift | undefined>(undefined)
 const activeFilter = ref<string>('all')
 
 const todayStr = new Date().toISOString().split('T')[0]
-
-interface ShiftEntry {
-  id: string
-  date: string
-  type: 'morning' | 'evening' | 'custom'
-  customLabel?: string
-  ownerName: string
-  isOwn: boolean
-  color: string
-}
-
-interface DateGroup {
-  date: string
-  label: string
-  isToday: boolean
-  shifts: ShiftEntry[]
-}
 
 const allPeople = computed(() => peopleStore.people)
 
@@ -211,12 +109,6 @@ function formatDateLabel(dateStr: string): string {
   return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-function shiftLabel(shift: ShiftEntry): string {
-  if (shift.type === 'morning') return '☀️ Uchtend'
-  if (shift.type === 'evening') return '🌙 Avond'
-  return `✏️ ${shift.customLabel || 'Custom'}`
-}
-
 async function onDeleteShift(shift: ShiftEntry) {
   if (shift.isOwn) {
     await shiftsStore.removeShift(shift.id)
@@ -252,27 +144,80 @@ async function onShare() {
 
 onMounted(async () => {
   await nextTick()
-  // Scroll to today's divider
   setTimeout(() => {
     todayDividerRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, 300)
 })
 </script>
 
+<template>
+    <ion-page>
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>Werkschema</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button @click="onShare" title="Share schedule">
+                        <ion-icon slot="icon-only" :icon="shareOutline" />
+                    </ion-button>
+                    <ion-button router-link="/settings" title="Settings">
+                        <ion-icon slot="icon-only" :icon="settingsOutline" />
+                    </ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+
+        <ion-content ref="contentRef">
+            <filter-bar
+                v-if="allPeople.length > 0"
+                v-model="activeFilter"
+                :options="filterOptions"
+            />
+
+            <ion-list v-if="dateGroups.length > 0" lines="full">
+                <template v-for="group in dateGroups" :key="group.date">
+                    <ion-item-divider
+                        :ref="group.isToday ? (el) => (todayDividerRef = el as HTMLElement) : undefined"
+                        :color="group.isToday ? 'primary' : undefined"
+                        sticky
+                    >
+                        <ion-label>{{ group.label }}</ion-label>
+                    </ion-item-divider>
+
+                    <shift-item
+                        v-for="shift in group.shifts"
+                        :key="shift.id"
+                        :shift="shift"
+                        @edit="onEditShift(shift)"
+                        @delete="onDeleteShift(shift)"
+                    />
+                </template>
+            </ion-list>
+
+            <div v-else class="empty-state">
+                <ion-icon :icon="calendarOutline" size="large" />
+                <p>No shifts yet. Tap + to add your first shift.</p>
+            </div>
+        </ion-content>
+
+        <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+            <ion-fab-button @click="isAddModalOpen = true">
+                <ion-icon :icon="addOutline" />
+            </ion-fab-button>
+        </ion-fab>
+
+        <shift-form-modal
+            :is-open="isAddModalOpen"
+            :shift="editingShift"
+            @did-dismiss="isAddModalOpen = false; editingShift = undefined"
+            @shift-added="onShiftAdded"
+            @shift-updated="onShiftUpdated"
+        />
+    </ion-page>
+</template>
+
 <style scoped>
 ion-fab {
   margin-bottom: env(safe-area-inset-bottom);
-}
-.filter-bar {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding: 8px 12px;
-  gap: 4px;
-  scrollbar-width: none;
-}
-.filter-bar::-webkit-scrollbar {
-  display: none;
 }
 
 .empty-state {
