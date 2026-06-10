@@ -27,7 +27,7 @@
       </ion-item>
       <ion-radio-group v-model="selectedType">
         <ion-item>
-          <ion-radio value="morning" label-placement="end">☀️ Ochtend</ion-radio>
+          <ion-radio value="morning" label-placement="end">☀️ Uchtend</ion-radio>
         </ion-item>
         <ion-item>
           <ion-radio value="evening" label-placement="end">🌙 Avond</ion-radio>

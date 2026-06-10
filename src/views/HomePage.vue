@@ -54,8 +54,8 @@
                 <p>{{ shift.ownerName }}</p>
               </ion-label>
             </ion-item>
-            <ion-item-options v-if="shift.isOwn" side="end">
-              <ion-item-option color="danger" @click="onDeleteShift(shift.id)">
+            <ion-item-options side="end">
+              <ion-item-option color="danger" @click="onDeleteShift(shift)">
                 <ion-icon slot="icon-only" :icon="trashOutline" />
               </ion-item-option>
             </ion-item-options>
@@ -212,13 +212,17 @@ function formatDateLabel(dateStr: string): string {
 }
 
 function shiftLabel(shift: ShiftEntry): string {
-  if (shift.type === 'morning') return '☀️ Ochtend'
+  if (shift.type === 'morning') return '☀️ Uchtend'
   if (shift.type === 'evening') return '🌙 Avond'
   return `✏️ ${shift.customLabel || 'Custom'}`
 }
 
-async function onDeleteShift(id: string) {
-  await shiftsStore.removeShift(id)
+async function onDeleteShift(shift: ShiftEntry) {
+  if (shift.isOwn) {
+    await shiftsStore.removeShift(shift.id)
+  } else {
+    await peopleStore.removeShiftFromPerson(shift.ownerName, shift.id)
+  }
   await scheduleNextDayReminder()
 }
 

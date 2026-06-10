@@ -30,5 +30,12 @@ export const usePeopleStore = defineStore('people', () => {
     await persist()
   }
 
-  return { people, load, importPerson, removePerson }
+  async function removeShiftFromPerson(personName: string, shiftId: string) {
+    people.value = people.value
+      .map(p => p.name !== personName ? p : { ...p, shifts: p.shifts.filter(s => s.id !== shiftId) })
+      .filter(p => p.shifts.length > 0)
+    await persist()
+  }
+
+  return { people, load, importPerson, removePerson, removeShiftFromPerson }
 })
