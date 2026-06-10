@@ -1,0 +1,163 @@
+<template>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/home" />
+        </ion-buttons>
+        <ion-title>Settings</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-list>
+        <ion-item-group>
+          <ion-item-divider>
+            <ion-label>Profile</ion-label>
+          </ion-item-divider>
+          <ion-item>
+            <ion-input
+              label="Your name"
+              label-placement="stacked"
+              placeholder="e.g. Jan"
+              :value="settings.myName"
+              @ion-input="settings.myName = ($event.target as HTMLIonInputElement).value as string"
+              @ion-blur="saveSettings"
+            />
+          </ion-item>
+        </ion-item-group>
+
+        <ion-item-group>
+          <ion-item-divider>
+            <ion-label>Notifications</ion-label>
+          </ion-item-divider>
+          <ion-item>
+            <ion-label>Remind me the evening before</ion-label>
+            <ion-toggle
+              slot="end"
+              :checked="settings.notificationsEnabled"
+              @ion-change="onToggleNotifications"
+            />
+          </ion-item>
+          <ion-item v-if="settings.notificationsEnabled">
+            <ion-label>Reminder time</ion-label>
+            <ion-datetime-button slot="end" datetime="notif-time" />
+          </ion-item>
+        </ion-item-group>
+
+        <ion-item-group>
+          <ion-item-divider>
+            <ion-label>Imported schedules</ion-label>
+          </ion-item-divider>
+          <ion-item v-for="person in people" :key="person.name">
+            <ion-label>
+              <h3>{{ person.name }}</h3>
+              <p>Imported {{ formatDate(person.importedAt) }}</p>
+            </ion-label>
+            <ion-button slot="end" fill="clear" color="danger" @click="onRemovePerson(person.name)">
+              <ion-icon slot="icon-only" :icon="trashOutline" />
+            </ion-button>
+          </ion-item>
+          <ion-item v-if="people.length === 0">
+            <ion-label color="medium">No imported schedules yet</ion-label>
+          </ion-item>
+        </ion-item-group>
+
+        <ion-item-group>
+          <ion-item-divider>
+            <ion-label>Import</ion-label>
+          </ion-item-divider>
+          <ion-item>
+            <ion-input
+              label="Paste a werkschema:// link"
+              label-placement="stacked"
+              placeholder="werkschema://import?data=..."
+              v-model="pastedLink"
+              @keyup.enter="onImportLink"
+            />
+            <ion-button slot="end" fill="clear" @click="onImportLink">
+              Import
+            </ion-button>
+          </ion-item>
+          <ion-item v-if="importError">
+            <ion-label color="danger">{{ importError }}</ion-label>
+          </ion-item>
+        </ion-item-group>
+      </ion-list>
+
+      <ion-modal :keep-contents-mounted="true">
+        <ion-datetime
+          id="notif-time"
+          presentation="time"
+          :value="settings.notificationTime"
+          @ion-change="onTimeChange"
+        />
+      </ion-modal>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import {
+  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+  IonContent, IonList, IonItem, IonItemGroup, IonItemDivider, IonLabel,
+  IonInput, IonToggle, IonButton, IonIcon, IonDatetime, IonDatetimeButton, IonModal,
+} from '@ionic/vue'
+import { trashOutline } from 'ionicons/icons'
+import { useSettingsStore } from '@/stores/settings'
+import { usePeopleStore } from '@/stores/people'
+import { useShare } from '@/composables/useShare'
+import { useNotifications } from '@/composables/useNotifications'
+
+const settingsStore = useSettingsStore()
+const peopleStore = usePeopleStore()
+const { parseDeepLink } = useShare()
+const { scheduleNextDayReminder } = useNotifications()
+
+const settings = computed(() => settingsStore.settings)
+const people = computed(() => peopleStore.people)
+const pastedLink = ref('')
+const importError = ref('')
+
+async function saveSettings() {
+  await settingsStore.update({ myName: settings.value.myName })
+}
+
+async function onToggleNotifications(ev: CustomEvent) {
+  await settingsStore.update({ notificationsEnabled: ev.detail.checked })
+  await scheduleNextDayReminder()
+}
+
+async function onTimeChange(ev: CustomEvent) {
+  const value = ev.detail.value as string
+  if (!value) return
+  // IonDatetime returns full ISO string; extract HH:MM
+  const time = value.includes('T') ? value.split('T')[1].substring(0, 5) : value.substring(0, 5)
+  await settingsStore.update({ notificationTime: time })
+  await scheduleNextDayReminder()
+}
+
+async function onRemovePerson(name: string) {
+  await peopleStore.removePerson(name)
+}
+
+async function onImportLink() {
+  importError.value = ''
+  const payload = parseDeepLink(pastedLink.value.trim())
+  if (!payload) {
+    importError.value = 'Invalid link. Please check and try again.'
+    return
+  }
+  await peopleStore.importPerson({
+    name: payload.name,
+    shifts: payload.shifts,
+    importedAt: new Date().toISOString(),
+  })
+  pastedLink.value = ''
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+</script>

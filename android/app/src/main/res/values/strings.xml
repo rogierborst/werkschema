@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Werkschema</string>
+    <string name="title_activity_main">Werkschema</string>
+    <string name="package_name">nl.werkschema.app</string>
+    <string name="custom_url_scheme">nl.werkschema.app</string>
+</resources>
