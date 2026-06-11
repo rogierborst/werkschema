@@ -1,18 +1,25 @@
 <script setup lang="ts">
     import { ref, computed, onMounted, nextTick } from 'vue'
-    import { IonList, IonItemDivider, IonLabel, IonIcon } from '@ionic/vue'
+    import { IonList, IonIcon } from '@ionic/vue'
     import { calendarOutline } from 'ionicons/icons'
     import { useShiftsStore } from '@/stores/shifts'
     import { usePeopleStore } from '@/stores/people'
     import { useSettingsStore } from '@/stores/settings'
     import { useNotifications } from '@/composables/useNotifications'
     import ShiftItem from '@/components/home/ShiftItem.vue'
-    import type { ShiftEntry, DateGroup } from '@/types'
+    import type { ShiftEntry } from '@/types'
 
     const props = defineProps<{ activeFilter: string }>()
     const emit = defineEmits<{ 'edit-shift': [shift: ShiftEntry] }>()
 
-    const PERSON_COLORS = ['#3880ff', '#2dd36f', '#eb445a', '#ffc409', '#92949c', '#6a64ff']
+    const PERSON_COLORS = [
+        { bg: '#dde8ff', text: '#1a4dcc' },
+        { bg: '#d4f5e2', text: '#1a7a40' },
+        { bg: '#ffd6db', text: '#c41230' },
+        { bg: '#fff0c2', text: '#8a6000' },
+        { bg: '#e8e9eb', text: '#4a4c54' },
+        { bg: '#e8e6ff', text: '#4540d4' },
+    ]
 
     const shiftsStore = useShiftsStore()
     const peopleStore = usePeopleStore()
@@ -20,7 +27,7 @@
     const { scheduleNextDayReminder } = useNotifications()
 
     const todayStr = new Date().toISOString().split('T')[0]
-    const todayDividerRef = ref<HTMLElement | null>(null)
+    const todayItemRef = ref<InstanceType<typeof ShiftItem> | null>(null)
 
     const allEntries = computed<ShiftEntry[]>(() => {
         const myName = settingsStore.settings.myName || 'Me'
@@ -28,7 +35,8 @@
             ...s,
             ownerName: myName,
             isOwn: true,
-            color: PERSON_COLORS[0],
+            color: PERSON_COLORS[0].bg,
+            textColor: PERSON_COLORS[0].text,
         }))
 
         const others: ShiftEntry[] = peopleStore.people.flatMap((person, idx) =>
@@ -36,7 +44,8 @@
                 ...s,
                 ownerName: person.name,
                 isOwn: false,
-                color: PERSON_COLORS[(idx + 1) % PERSON_COLORS.length],
+                color: PERSON_COLORS[(idx + 1) % PERSON_COLORS.length].bg,
+                textColor: PERSON_COLORS[(idx + 1) % PERSON_COLORS.length].text,
             }))
         )
 
@@ -55,43 +64,10 @@
                 if (props.activeFilter === 'me') return e.isOwn
                 return e.ownerName === props.activeFilter
             })
-            .sort((a, b) => a.date.localeCompare(b.date))
+            .sort((a, b) => a.date.localeCompare(b.date) || (a.isOwn ? -1 : 1))
     })
 
-    const dateGroups = computed<DateGroup[]>(() => {
-        const map = new Map<string, ShiftEntry[]>()
-        for (const entry of visibleEntries.value) {
-            if (!map.has(entry.date)) map.set(entry.date, [])
-            map.get(entry.date)!.push(entry)
-        }
-
-        return Array.from(map.entries()).map(([date, shifts]) => ({
-            date,
-            ...formatDateParts(date),
-            isToday: date === todayStr,
-            shifts,
-        }))
-    })
-
-    function formatDateParts(dateStr: string): { dayName: string; label: string } {
-        const date = new Date(dateStr + 'T00:00:00')
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const tomorrow = new Date(today)
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        const yesterday = new Date(today)
-        yesterday.setDate(yesterday.getDate() - 1)
-
-        const dayName = date.toLocaleDateString('nl-NL', { weekday: 'short' }).toUpperCase()
-
-        let label: string
-        if (date.getTime() === today.getTime()) label = 'Vandaag'
-        else if (date.getTime() === tomorrow.getTime()) label = 'Morgen'
-        else if (date.getTime() === yesterday.getTime()) label = 'Gisteren'
-        else label = date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-
-        return { dayName, label }
-    }
+    const firstTodayEntry = computed(() => visibleEntries.value.find((e) => e.date === todayStr))
 
     async function onDeleteShift(shift: ShiftEntry) {
         if (shift.isOwn) {
@@ -105,33 +81,21 @@
     onMounted(async () => {
         await nextTick()
         setTimeout(() => {
-            todayDividerRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            ;(todayItemRef.value?.$el as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }, 300)
     })
 </script>
 
 <template>
-    <ion-list v-if="dateGroups.length > 0" lines="full">
-        <template v-for="group in dateGroups" :key="group.date">
-            <ion-item-divider
-                :ref="group.isToday ? (el) => (todayDividerRef = el as HTMLElement) : undefined"
-                :color="group.isToday ? 'primary' : undefined"
-                sticky
-            >
-                <ion-label class="date-label">
-                    <span class="day-name">{{ group.dayName }}</span>
-                    <span class="date-secondary">{{ group.label }}</span>
-                </ion-label>
-            </ion-item-divider>
-
-            <shift-item
-                v-for="shift in group.shifts"
-                :key="shift.id"
-                :shift="shift"
-                @edit="emit('edit-shift', shift)"
-                @delete="onDeleteShift(shift)"
-            />
-        </template>
+    <ion-list v-if="visibleEntries.length > 0" lines="full">
+        <shift-item
+            v-for="shift in visibleEntries"
+            :key="shift.id"
+            :ref="shift === firstTodayEntry ? (el) => (todayItemRef = el as InstanceType<typeof ShiftItem>) : undefined"
+            :shift="shift"
+            @edit="emit('edit-shift', shift)"
+            @delete="onDeleteShift(shift)"
+        />
     </ion-list>
 
     <div v-else class="empty-state">
@@ -150,23 +114,5 @@
         color: var(--ion-color-medium);
         gap: 12px;
         text-align: center;
-    }
-
-    .date-label {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-    }
-
-    .day-name {
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-    }
-
-    .date-secondary {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        font-weight: 400;
     }
 </style>

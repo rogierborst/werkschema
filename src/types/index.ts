@@ -34,6 +34,7 @@ export interface ShiftEntry {
     ownerName: string
     isOwn: boolean
     color: string
+    textColor: string
 }
 
 export interface DateGroup {
