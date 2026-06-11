@@ -41,11 +41,7 @@
 <template>
     <ion-item-sliding>
         <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
-            <div
-                slot="start"
-                class="day-badge"
-                :style="{ background: shift.color, color: shift.textColor }"
-            >
+            <div slot="start" class="day-badge" :style="{ background: shift.color, color: shift.textColor }">
                 {{ dateParts.dayName }}
             </div>
             <ion-label>

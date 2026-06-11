@@ -52,15 +52,19 @@
     }
 
     function setupSpringBack() {
-        scrollRef.value?.addEventListener('touchend', () => {
-            const snapOffset = getSnapOffset()
-            if (!scrollRef.value || snapOffset <= 0) return
-            if (scrollRef.value.scrollTop < snapOffset - 1) {
-                requestAnimationFrame(() => {
-                    scrollRef.value!.scrollTo({ top: snapOffset, behavior: 'smooth' })
-                })
-            }
-        }, { passive: true })
+        scrollRef.value?.addEventListener(
+            'touchend',
+            () => {
+                const snapOffset = getSnapOffset()
+                if (!scrollRef.value || snapOffset <= 0) return
+                if (scrollRef.value.scrollTop < snapOffset - 1) {
+                    requestAnimationFrame(() => {
+                        scrollRef.value!.scrollTo({ top: snapOffset, behavior: 'smooth' })
+                    })
+                }
+            },
+            { passive: true }
+        )
     }
 
     onIonViewDidEnter(() => {
@@ -113,7 +117,10 @@
         <shift-form-modal
             :is-open="isAddModalOpen"
             :shift="editingShift"
-            @did-dismiss="isAddModalOpen = false; editingShift = undefined"
+            @did-dismiss="
+                isAddModalOpen = false
+                editingShift = undefined
+            "
         />
     </ion-page>
 </template>

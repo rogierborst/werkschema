@@ -36,4 +36,3 @@ export interface ShiftEntry {
     color: string
     textColor: string
 }
-

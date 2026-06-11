@@ -62,13 +62,9 @@
             .sort((a, b) => a.date.localeCompare(b.date) || (a.isOwn ? -1 : 1))
     )
 
-    const pastEntries = computed(() =>
-        filteredEntries.value.filter((e) => e.date < todayStr).slice(-3)
-    )
+    const pastEntries = computed(() => filteredEntries.value.filter((e) => e.date < todayStr).slice(-3))
 
-    const futureEntries = computed(() =>
-        filteredEntries.value.filter((e) => e.date >= todayStr)
-    )
+    const futureEntries = computed(() => filteredEntries.value.filter((e) => e.date >= todayStr))
 
     async function onDeleteShift(shift: ShiftEntry) {
         if (shift.isOwn) {
@@ -102,9 +98,7 @@
 
         <!-- Snap anchor: default scroll position, doubles as subtle past-items hint -->
         <div ref="snapAnchorRef" class="snap-anchor">
-            <span v-if="pastEntries.length > 0" class="past-hint">
-                ↑ {{ pastEntries.length }} vorige
-            </span>
+            <span v-if="pastEntries.length > 0" class="past-hint"> ↑ {{ pastEntries.length }} vorige </span>
         </div>
 
         <ion-list lines="full">
