@@ -37,10 +37,3 @@ export interface ShiftEntry {
     textColor: string
 }
 
-export interface DateGroup {
-    date: string
-    dayName: string // e.g. "MON"
-    label: string // e.g. "Today" / "8 Jun"
-    isToday: boolean
-    shifts: ShiftEntry[]
-}

@@ -27,7 +27,7 @@
     const { scheduleNextDayReminder } = useNotifications()
 
     const todayStr = new Date().toISOString().split('T')[0]
-    const todayItemRef = ref<InstanceType<typeof ShiftItem> | null>(null)
+    const snapAnchorRef = ref<HTMLElement | null>(null)
 
     const allEntries = computed<ShiftEntry[]>(() => {
         const myName = settingsStore.settings.myName || 'Me'
@@ -52,22 +52,23 @@
         return [...mine, ...others]
     })
 
-    const visibleEntries = computed<ShiftEntry[]>(() => {
-        const cutoff = new Date()
-        cutoff.setDate(cutoff.getDate() - 14)
-        const cutoffStr = cutoff.toISOString().split('T')[0]
-
-        return allEntries.value
-            .filter((e) => e.date >= cutoffStr)
+    const filteredEntries = computed<ShiftEntry[]>(() =>
+        allEntries.value
             .filter((e) => {
                 if (props.activeFilter === 'all') return true
                 if (props.activeFilter === 'me') return e.isOwn
                 return e.ownerName === props.activeFilter
             })
             .sort((a, b) => a.date.localeCompare(b.date) || (a.isOwn ? -1 : 1))
-    })
+    )
 
-    const firstTodayEntry = computed(() => visibleEntries.value.find((e) => e.date === todayStr))
+    const pastEntries = computed(() =>
+        filteredEntries.value.filter((e) => e.date < todayStr).slice(-3)
+    )
+
+    const futureEntries = computed(() =>
+        filteredEntries.value.filter((e) => e.date >= todayStr)
+    )
 
     async function onDeleteShift(shift: ShiftEntry) {
         if (shift.isOwn) {
@@ -80,23 +81,44 @@
 
     onMounted(async () => {
         await nextTick()
-        setTimeout(() => {
-            ;(todayItemRef.value?.$el as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }, 300)
+        // Scroll is handled by the parent (HomePage) which has access to IonContent
     })
+
+    defineExpose({ snapAnchorEl: snapAnchorRef })
 </script>
 
 <template>
-    <ion-list v-if="visibleEntries.length > 0" lines="full">
-        <shift-item
-            v-for="shift in visibleEntries"
-            :key="shift.id"
-            :ref="shift === firstTodayEntry ? (el) => (todayItemRef = el as InstanceType<typeof ShiftItem>) : undefined"
-            :shift="shift"
-            @edit="emit('edit-shift', shift)"
-            @delete="onDeleteShift(shift)"
-        />
-    </ion-list>
+    <template v-if="futureEntries.length > 0">
+        <!-- Past items rendered above snap point, hidden by default -->
+        <ion-list v-if="pastEntries.length > 0" lines="full">
+            <shift-item
+                v-for="shift in pastEntries"
+                :key="shift.id"
+                :shift="shift"
+                @edit="emit('edit-shift', shift)"
+                @delete="onDeleteShift(shift)"
+            />
+        </ion-list>
+
+        <!-- Snap anchor: default scroll position, doubles as subtle past-items hint -->
+        <div ref="snapAnchorRef" class="snap-anchor">
+            <span v-if="pastEntries.length > 0" class="past-hint">
+                ↑ {{ pastEntries.length }} vorige
+            </span>
+        </div>
+
+        <ion-list lines="full">
+            <shift-item
+                v-for="shift in futureEntries"
+                :key="shift.id"
+                :shift="shift"
+                @edit="emit('edit-shift', shift)"
+                @delete="onDeleteShift(shift)"
+            />
+        </ion-list>
+        <!-- Ensures past items can always be scrolled out of view -->
+        <div class="scroll-spacer" />
+    </template>
 
     <div v-else class="empty-state">
         <ion-icon :icon="calendarOutline" size="large" />
@@ -105,6 +127,23 @@
 </template>
 
 <style scoped>
+    .snap-anchor {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 24px;
+    }
+
+    .past-hint {
+        font-size: 0.75rem;
+        color: var(--ion-color-medium);
+        opacity: 0.6;
+    }
+
+    .scroll-spacer {
+        height: 100dvh;
+    }
+
     .empty-state {
         display: flex;
         flex-direction: column;

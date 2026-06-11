@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref } from 'vue'
+    import { ref, watch, nextTick } from 'vue'
     import {
         IonPage,
         IonHeader,
@@ -11,6 +11,7 @@
         IonContent,
         IonFab,
         IonFabButton,
+        onIonViewDidEnter,
     } from '@ionic/vue'
     import { shareOutline, settingsOutline, addOutline } from 'ionicons/icons'
     import { useShare } from '@/composables/useShare'
@@ -24,6 +25,8 @@
     const isAddModalOpen = ref(false)
     const editingShift = ref<Shift | undefined>(undefined)
     const activeFilter = ref('all')
+    const scrollRef = ref<HTMLElement>()
+    const shiftListRef = ref<InstanceType<typeof ShiftList>>()
 
     function onEditShift(shift: ShiftEntry) {
         editingShift.value = {
@@ -34,6 +37,48 @@
         }
         isAddModalOpen.value = true
     }
+
+    function getSnapOffset(): number {
+        const snapEl = shiftListRef.value?.snapAnchorEl
+        if (!snapEl || !scrollRef.value) return 0
+        return snapEl.offsetTop
+    }
+
+    function scrollToSnap() {
+        const snapOffset = getSnapOffset()
+        if (scrollRef.value && snapOffset > 0) {
+            scrollRef.value.scrollTop = snapOffset
+        }
+    }
+
+    function setupSpringBack() {
+        scrollRef.value?.addEventListener('touchend', () => {
+            const snapOffset = getSnapOffset()
+            if (!scrollRef.value || snapOffset <= 0) return
+            if (scrollRef.value.scrollTop < snapOffset - 1) {
+                requestAnimationFrame(() => {
+                    scrollRef.value!.scrollTo({ top: snapOffset, behavior: 'smooth' })
+                })
+            }
+        }, { passive: true })
+    }
+
+    onIonViewDidEnter(() => {
+        setupSpringBack()
+        requestAnimationFrame(() => scrollToSnap())
+    })
+
+    let hasScrolled = false
+    watch(
+        () => shiftListRef.value?.snapAnchorEl,
+        async (snapEl) => {
+            if (snapEl && !hasScrolled) {
+                hasScrolled = true
+                await nextTick()
+                requestAnimationFrame(() => scrollToSnap())
+            }
+        }
+    )
 </script>
 
 <template>
@@ -52,9 +97,11 @@
             </ion-toolbar>
         </ion-header>
 
-        <ion-content>
-            <filter-bar v-model="activeFilter" />
-            <shift-list :active-filter="activeFilter" @edit-shift="onEditShift" />
+        <ion-content :scroll-y="false">
+            <div ref="scrollRef" class="snap-scroll">
+                <filter-bar v-model="activeFilter" />
+                <shift-list ref="shiftListRef" :active-filter="activeFilter" @edit-shift="onEditShift" />
+            </div>
         </ion-content>
 
         <ion-fab slot="fixed" vertical="bottom" horizontal="end">
@@ -72,6 +119,14 @@
 </template>
 
 <style scoped>
+    .snap-scroll {
+        position: absolute;
+        inset: 0;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
+
     ion-fab {
         margin-bottom: env(safe-area-inset-bottom);
     }
