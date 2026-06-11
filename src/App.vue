@@ -1,9 +1,3 @@
-<template>
-  <ion-app>
-    <ion-router-outlet />
-  </ion-app>
-</template>
-
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { IonApp, IonRouterOutlet } from '@ionic/vue'
@@ -51,3 +45,9 @@ onMounted(async () => {
   })
 })
 </script>
+
+<template>
+  <ion-app>
+    <ion-router-outlet />
+  </ion-app>
+</template>

@@ -1,3 +1,69 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import {
+  IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
+  IonContent, IonItem, IonLabel, IonRadioGroup, IonRadio, IonInput,
+  IonDatetime, IonDatetimeButton,
+} from '@ionic/vue'
+import { useShiftsStore } from '@/stores/shifts'
+import { useNotifications } from '@/composables/useNotifications'
+import type { Shift, ShiftType } from '@/types'
+
+const props = defineProps<{ isOpen: boolean; shift?: Shift }>()
+const emit = defineEmits<{ (e: 'did-dismiss'): void }>()
+
+const shiftsStore = useShiftsStore()
+const { scheduleNextDayReminder } = useNotifications()
+
+const todayStr = new Date().toISOString().split('T')[0]
+let lastUsedDate = todayStr
+
+const selectedDate = ref(todayStr)
+const selectedType = ref<ShiftType>('morning')
+const customLabel = ref('')
+
+watch(() => props.isOpen, (open) => {
+  if (open && props.shift) {
+    selectedDate.value = props.shift.date
+    selectedType.value = props.shift.type
+    customLabel.value = props.shift.customLabel ?? ''
+  } else if (open) {
+    selectedDate.value = lastUsedDate
+    selectedType.value = 'morning'
+    customLabel.value = ''
+  }
+})
+
+function onDateChange(ev: CustomEvent) {
+  const value = ev.detail.value as string
+  if (!value) return
+  selectedDate.value = value.includes('T') ? value.split('T')[0] : value
+}
+
+async function onAdd() {
+  if (selectedType.value === 'custom' && !customLabel.value.trim()) return
+
+  const shift: Shift = {
+    id: props.shift ? props.shift.id : `${selectedDate.value}-${Date.now()}`,
+    date: selectedDate.value,
+    type: selectedType.value,
+    customLabel: selectedType.value === 'custom' ? customLabel.value.trim() : undefined,
+  }
+
+  if (props.shift) {
+    await shiftsStore.updateShift(shift)
+  } else {
+    await shiftsStore.addShift(shift)
+    lastUsedDate = shift.date
+    selectedType.value = 'morning'
+    customLabel.value = ''
+  }
+
+  await scheduleNextDayReminder()
+  emit('did-dismiss')
+}
+</script>
+
 <template>
   <ion-modal
     :is-open="isOpen"
@@ -65,69 +131,3 @@
     </ion-modal>
   </ion-modal>
 </template>
-
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import {
-  IonModal, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
-  IonContent, IonItem, IonLabel, IonRadioGroup, IonRadio, IonInput,
-  IonDatetime, IonDatetimeButton,
-} from '@ionic/vue'
-import { useShiftsStore } from '@/stores/shifts'
-import { useNotifications } from '@/composables/useNotifications'
-import type { Shift, ShiftType } from '@/types'
-
-const props = defineProps<{ isOpen: boolean; shift?: Shift }>()
-const emit = defineEmits<{ (e: 'did-dismiss'): void }>()
-
-const shiftsStore = useShiftsStore()
-const { scheduleNextDayReminder } = useNotifications()
-
-const todayStr = new Date().toISOString().split('T')[0]
-let lastUsedDate = todayStr
-
-const selectedDate = ref(todayStr)
-const selectedType = ref<ShiftType>('morning')
-const customLabel = ref('')
-
-watch(() => props.isOpen, (open) => {
-  if (open && props.shift) {
-    selectedDate.value = props.shift.date
-    selectedType.value = props.shift.type
-    customLabel.value = props.shift.customLabel ?? ''
-  } else if (open) {
-    selectedDate.value = lastUsedDate
-    selectedType.value = 'morning'
-    customLabel.value = ''
-  }
-})
-
-function onDateChange(ev: CustomEvent) {
-  const value = ev.detail.value as string
-  if (!value) return
-  selectedDate.value = value.includes('T') ? value.split('T')[0] : value
-}
-
-async function onAdd() {
-  if (selectedType.value === 'custom' && !customLabel.value.trim()) return
-
-  const shift: Shift = {
-    id: props.shift ? props.shift.id : `${selectedDate.value}-${Date.now()}`,
-    date: selectedDate.value,
-    type: selectedType.value,
-    customLabel: selectedType.value === 'custom' ? customLabel.value.trim() : undefined,
-  }
-
-  if (props.shift) {
-    await shiftsStore.updateShift(shift)
-  } else {
-    await shiftsStore.addShift(shift)
-    lastUsedDate = shift.date
-    selectedType.value = 'morning'
-    customLabel.value = ''
-  }
-
-  await scheduleNextDayReminder()
-  emit('did-dismiss')
-}
-</script>

@@ -1,3 +1,113 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import {
+  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+  IonContent, IonList, IonItem, IonItemGroup, IonItemDivider, IonLabel,
+  IonInput, IonToggle, IonButton, IonIcon, IonDatetime, IonDatetimeButton, IonModal,
+  alertController,
+} from '@ionic/vue'
+import { trashOutline, clipboardOutline } from 'ionicons/icons'
+import { useSettingsStore } from '@/stores/settings'
+import { usePeopleStore } from '@/stores/people'
+import { useShare } from '@/composables/useShare'
+import { useNotifications } from '@/composables/useNotifications'
+
+const settingsStore = useSettingsStore()
+const peopleStore = usePeopleStore()
+const { parseDeepLink } = useShare()
+const { scheduleNextDayReminder } = useNotifications()
+
+const settings = computed(() => settingsStore.settings)
+const people = computed(() => peopleStore.people)
+const pastedLink = ref('')
+const importError = ref('')
+const importSuccess = ref('')
+
+async function doImport(link: string): Promise<boolean> {
+  importError.value = ''
+  importSuccess.value = ''
+  const payload = parseDeepLink(link.trim())
+  if (!payload) {
+    importError.value = 'Ongeldige link. Controleer en probeer opnieuw.'
+    return false
+  }
+
+  const alert = await alertController.create({
+    header: 'Schema importeren',
+    message: 'Onder welke naam wil je dit schema opslaan?',
+    inputs: [{ name: 'name', type: 'text', value: payload.name, placeholder: 'Naam' }],
+    buttons: [
+      { text: 'Annuleer', role: 'cancel' },
+      { text: 'Importeer', role: 'confirm' },
+    ],
+  })
+  await alert.present()
+  const { role, data } = await alert.onDidDismiss()
+  if (role !== 'confirm') return false
+
+  const name = (data?.values?.name as string)?.trim() || payload.name
+  await peopleStore.importPerson({
+    name,
+    shifts: payload.shifts,
+    importedAt: new Date().toISOString(),
+  })
+  importSuccess.value = `✅ ${name}'s schema geïmporteerd!`
+  return true
+}
+
+async function onToggleDarkMode(ev: CustomEvent) {
+  await settingsStore.update({ darkMode: ev.detail.checked })
+}
+
+async function saveSettings() {
+  await settingsStore.update({ myName: settings.value.myName })
+}
+
+async function onToggleNotifications(ev: CustomEvent) {
+  await settingsStore.update({ notificationsEnabled: ev.detail.checked })
+  await scheduleNextDayReminder()
+}
+
+async function onTimeChange(ev: CustomEvent) {
+  const value = ev.detail.value as string
+  if (!value) return
+  // IonDatetime returns full ISO string; extract HH:MM
+  const time = value.includes('T') ? value.split('T')[1].substring(0, 5) : value.substring(0, 5)
+  await settingsStore.update({ notificationTime: time })
+  await scheduleNextDayReminder()
+}
+
+async function onRemovePerson(name: string) {
+  await peopleStore.removePerson(name)
+}
+
+async function onImportLink() {
+  const ok = await doImport(pastedLink.value)
+  if (ok) pastedLink.value = ''
+}
+
+async function onPasteFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText()
+    const match = text.match(/werkschema:\/\/\S+/)
+    if (!match) {
+      importError.value = 'Geen werkschema-link gevonden op het klembord.'
+      importSuccess.value = ''
+      return
+    }
+    const ok = await doImport(match[0])
+    if (ok) pastedLink.value = ''
+  } catch {
+    importError.value = 'Kan klembord niet lezen. Plak de link handmatig.'
+    importSuccess.value = ''
+  }
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+</script>
+
 <template>
   <ion-page>
     <ion-header>
@@ -117,113 +227,3 @@
     </ion-content>
   </ion-page>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-  IonContent, IonList, IonItem, IonItemGroup, IonItemDivider, IonLabel,
-  IonInput, IonToggle, IonButton, IonIcon, IonDatetime, IonDatetimeButton, IonModal,
-  alertController,
-} from '@ionic/vue'
-import { trashOutline, clipboardOutline } from 'ionicons/icons'
-import { useSettingsStore } from '@/stores/settings'
-import { usePeopleStore } from '@/stores/people'
-import { useShare } from '@/composables/useShare'
-import { useNotifications } from '@/composables/useNotifications'
-
-const settingsStore = useSettingsStore()
-const peopleStore = usePeopleStore()
-const { parseDeepLink } = useShare()
-const { scheduleNextDayReminder } = useNotifications()
-
-const settings = computed(() => settingsStore.settings)
-const people = computed(() => peopleStore.people)
-const pastedLink = ref('')
-const importError = ref('')
-const importSuccess = ref('')
-
-async function doImport(link: string): Promise<boolean> {
-  importError.value = ''
-  importSuccess.value = ''
-  const payload = parseDeepLink(link.trim())
-  if (!payload) {
-    importError.value = 'Ongeldige link. Controleer en probeer opnieuw.'
-    return false
-  }
-
-  const alert = await alertController.create({
-    header: 'Schema importeren',
-    message: 'Onder welke naam wil je dit schema opslaan?',
-    inputs: [{ name: 'name', type: 'text', value: payload.name, placeholder: 'Naam' }],
-    buttons: [
-      { text: 'Annuleer', role: 'cancel' },
-      { text: 'Importeer', role: 'confirm' },
-    ],
-  })
-  await alert.present()
-  const { role, data } = await alert.onDidDismiss()
-  if (role !== 'confirm') return false
-
-  const name = (data?.values?.name as string)?.trim() || payload.name
-  await peopleStore.importPerson({
-    name,
-    shifts: payload.shifts,
-    importedAt: new Date().toISOString(),
-  })
-  importSuccess.value = `✅ ${name}'s schema geïmporteerd!`
-  return true
-}
-
-async function onToggleDarkMode(ev: CustomEvent) {
-  await settingsStore.update({ darkMode: ev.detail.checked })
-}
-
-async function saveSettings() {
-  await settingsStore.update({ myName: settings.value.myName })
-}
-
-async function onToggleNotifications(ev: CustomEvent) {
-  await settingsStore.update({ notificationsEnabled: ev.detail.checked })
-  await scheduleNextDayReminder()
-}
-
-async function onTimeChange(ev: CustomEvent) {
-  const value = ev.detail.value as string
-  if (!value) return
-  // IonDatetime returns full ISO string; extract HH:MM
-  const time = value.includes('T') ? value.split('T')[1].substring(0, 5) : value.substring(0, 5)
-  await settingsStore.update({ notificationTime: time })
-  await scheduleNextDayReminder()
-}
-
-async function onRemovePerson(name: string) {
-  await peopleStore.removePerson(name)
-}
-
-async function onImportLink() {
-  const ok = await doImport(pastedLink.value)
-  if (ok) pastedLink.value = ''
-}
-
-async function onPasteFromClipboard() {
-  try {
-    const text = await navigator.clipboard.readText()
-    const match = text.match(/werkschema:\/\/\S+/)
-    if (!match) {
-      importError.value = 'Geen werkschema-link gevonden op het klembord.'
-      importSuccess.value = ''
-      return
-    }
-    const ok = await doImport(match[0])
-    if (ok) pastedLink.value = ''
-  } catch {
-    importError.value = 'Kan klembord niet lezen. Plak de link handmatig.'
-    importSuccess.value = ''
-  }
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-</script>
