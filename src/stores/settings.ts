@@ -7,6 +7,14 @@ const DEFAULTS: AppSettings = {
   myName: '',
   notificationsEnabled: true,
   notificationTime: '20:00',
+  darkMode: false,
+}
+
+function systemDefaults(): AppSettings {
+  return {
+    ...DEFAULTS,
+    darkMode: window.matchMedia('(prefers-color-scheme: dark)').matches,
+  }
 }
 
 export const useSettingsStore = defineStore('settings', () => {
@@ -14,7 +22,8 @@ export const useSettingsStore = defineStore('settings', () => {
 
   async function load() {
     const { value } = await Preferences.get({ key: 'app_settings' })
-    if (value) settings.value = { ...DEFAULTS, ...JSON.parse(value) }
+    if (value) settings.value = { ...systemDefaults(), ...JSON.parse(value) }
+    else settings.value = systemDefaults()
   }
 
   async function update(patch: Partial<AppSettings>) {

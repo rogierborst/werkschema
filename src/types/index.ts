@@ -17,6 +17,7 @@ export interface AppSettings {
   myName: string
   notificationsEnabled: boolean
   notificationTime: string // HH:MM, e.g. "20:00"
+  darkMode: boolean
 }
 
 export interface SharePayload {

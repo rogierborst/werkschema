@@ -13,6 +13,20 @@
       <ion-list>
         <ion-item-group>
           <ion-item-divider>
+            <ion-label>Appearance</ion-label>
+          </ion-item-divider>
+          <ion-item>
+            <ion-label>Dark mode</ion-label>
+            <ion-toggle
+              slot="end"
+              :checked="settings.darkMode"
+              @ion-change="onToggleDarkMode"
+            />
+          </ion-item>
+        </ion-item-group>
+
+        <ion-item-group>
+          <ion-item-divider>
             <ion-label>Profile</ion-label>
           </ion-item-divider>
           <ion-item>
@@ -159,6 +173,10 @@ async function doImport(link: string): Promise<boolean> {
   })
   importSuccess.value = `✅ ${name}'s schema geïmporteerd!`
   return true
+}
+
+async function onToggleDarkMode(ev: CustomEvent) {
+  await settingsStore.update({ darkMode: ev.detail.checked })
 }
 
 async function saveSettings() {

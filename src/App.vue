@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { IonApp, IonRouterOutlet } from '@ionic/vue'
 import { App } from '@capacitor/app'
 import { useRouter } from 'vue-router'
@@ -21,6 +21,12 @@ const peopleStore = usePeopleStore()
 const settingsStore = useSettingsStore()
 const { parseDeepLink } = useShare()
 const { requestPermission, scheduleNextDayReminder } = useNotifications()
+
+watch(
+  () => settingsStore.settings.darkMode,
+  (dark) => document.documentElement.classList.toggle('ion-palette-dark', dark),
+  { immediate: true },
+)
 
 onMounted(async () => {
   await Promise.all([
