@@ -82,9 +82,9 @@
     <ion-modal :is-open="isOpen" :breakpoints="[0, 1]" :initial-breakpoint="1" @did-dismiss="emit('did-dismiss')">
         <ion-header>
             <ion-toolbar>
-                <ion-title>{{ shift ? 'Edit Shift' : 'Add Shift' }}</ion-title>
+                <ion-title>{{ shift ? 'Dienst bewerken' : 'Dienst toevoegen' }}</ion-title>
                 <ion-buttons slot="end">
-                    <ion-button @click="emit('did-dismiss')">Cancel</ion-button>
+                    <ion-button @click="emit('did-dismiss')">Annuleer</ion-button>
                 </ion-buttons>
             </ion-toolbar>
         </ion-header>
@@ -92,13 +92,13 @@
         <ion-content class="ion-padding">
             <!-- Date picker -->
             <ion-item>
-                <ion-label position="stacked">Date</ion-label>
+                <ion-label position="stacked">Datum</ion-label>
                 <ion-datetime-button datetime="shift-date" />
             </ion-item>
 
             <!-- Shift type -->
             <ion-item>
-                <ion-label position="stacked">Shift type</ion-label>
+                <ion-label position="stacked">Dienst type</ion-label>
             </ion-item>
             <ion-radio-group v-model="selectedType">
                 <ion-item>
@@ -116,14 +116,14 @@
             <ion-item v-if="selectedType === 'custom'">
                 <ion-input
                     v-model="customLabel"
-                    label="Custom label"
+                    label="Eigen omschrijving"
                     label-placement="stacked"
-                    placeholder="e.g. Night shift"
+                    placeholder="bijv. Nachtdienst"
                 />
             </ion-item>
 
             <ion-button expand="block" class="ion-margin-top" @click="onAdd">
-                {{ shift ? 'Save Changes' : 'Add Shift' }}
+                {{ shift ? 'Wijzigingen opslaan' : 'Dienst toevoegen' }}
             </ion-button>
         </ion-content>
 
@@ -134,7 +134,7 @@
                 presentation="date"
                 :value="selectedDate"
                 show-default-buttons
-                done-text="Pick"
+                done-text="Klaar"
                 @ion-change="onDateChange"
             />
         </ion-modal>

@@ -28,10 +28,10 @@ export function useNotifications() {
 
         const shiftLabel =
             shift.type === 'morning'
-                ? 'Morning shift'
+                ? 'Ochtenddienst'
                 : shift.type === 'evening'
-                  ? 'Evening shift'
-                  : shift.customLabel || 'Custom shift'
+                  ? 'Avonddienst'
+                  : shift.customLabel || 'Aangepaste dienst'
 
         const [hours, minutes] = settingsStore.settings.notificationTime.split(':').map(Number)
         const at = new Date()
@@ -44,7 +44,7 @@ export function useNotifications() {
                 {
                     id: NOTIFICATION_ID,
                     title: 'Werkschema',
-                    body: `Tomorrow: ${shiftLabel}`,
+                    body: `Morgen: ${shiftLabel}`,
                     schedule: { at },
                 },
             ],

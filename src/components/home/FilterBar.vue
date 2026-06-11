@@ -14,8 +14,8 @@
     const settingsStore = useSettingsStore()
 
     const options = computed(() => [
-        { key: 'all', label: 'All' },
-        { key: 'me', label: settingsStore.settings.myName || 'Me' },
+        { key: 'all', label: 'Alles' },
+        { key: 'me', label: settingsStore.settings.myName || 'Ik' },
         ...peopleStore.people.map((p) => ({ key: p.name, label: p.name })),
     ])
 </script>

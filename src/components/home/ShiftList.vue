@@ -82,13 +82,13 @@
         const yesterday = new Date(today)
         yesterday.setDate(yesterday.getDate() - 1)
 
-        const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()
+        const dayName = date.toLocaleDateString('nl-NL', { weekday: 'short' }).toUpperCase()
 
         let label: string
-        if (date.getTime() === today.getTime()) label = 'Today'
-        else if (date.getTime() === tomorrow.getTime()) label = 'Tomorrow'
-        else if (date.getTime() === yesterday.getTime()) label = 'Yesterday'
-        else label = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+        if (date.getTime() === today.getTime()) label = 'Vandaag'
+        else if (date.getTime() === tomorrow.getTime()) label = 'Morgen'
+        else if (date.getTime() === yesterday.getTime()) label = 'Gisteren'
+        else label = date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
 
         return { dayName, label }
     }
@@ -136,7 +136,7 @@
 
     <div v-else class="empty-state">
         <ion-icon :icon="calendarOutline" size="large" />
-        <p>No shifts yet. Tap + to add your first shift.</p>
+        <p>Nog geen diensten. Tik op + om je eerste dienst toe te voegen.</p>
     </div>
 </template>
 

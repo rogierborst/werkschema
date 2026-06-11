@@ -42,10 +42,10 @@
             <ion-toolbar>
                 <ion-title>Werkschema</ion-title>
                 <ion-buttons slot="end">
-                    <ion-button title="Share schedule" @click="shareSchedule()">
+                    <ion-button title="Schema delen" @click="shareSchedule()">
                         <ion-icon slot="icon-only" :icon="shareOutline" />
                     </ion-button>
-                    <ion-button router-link="/settings" title="Settings">
+                    <ion-button router-link="/settings" title="Instellingen">
                         <ion-icon slot="icon-only" :icon="settingsOutline" />
                     </ion-button>
                 </ion-buttons>

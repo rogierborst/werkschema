@@ -120,7 +120,7 @@
     }
 
     function formatDate(iso: string): string {
-        return new Date(iso).toLocaleDateString('en-GB', {
+        return new Date(iso).toLocaleDateString('nl-NL', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -135,7 +135,7 @@
                 <ion-buttons slot="start">
                     <ion-back-button default-href="/home" />
                 </ion-buttons>
-                <ion-title>Settings</ion-title>
+                <ion-title>Instellingen</ion-title>
             </ion-toolbar>
         </ion-header>
 
@@ -143,23 +143,23 @@
             <ion-list>
                 <ion-item-group>
                     <ion-item-divider>
-                        <ion-label>Appearance</ion-label>
+                        <ion-label>Weergave</ion-label>
                     </ion-item-divider>
                     <ion-item>
-                        <ion-label>Dark mode</ion-label>
+                        <ion-label>Donkere modus</ion-label>
                         <ion-toggle slot="end" :checked="settings.darkMode" @ion-change="onToggleDarkMode" />
                     </ion-item>
                 </ion-item-group>
 
                 <ion-item-group>
                     <ion-item-divider>
-                        <ion-label>Profile</ion-label>
+                        <ion-label>Profiel</ion-label>
                     </ion-item-divider>
                     <ion-item>
                         <ion-input
-                            label="Your name"
+                            label="Jouw naam"
                             label-placement="stacked"
-                            placeholder="e.g. Jan"
+                            placeholder="bijv. Jan"
                             :value="settings.myName"
                             @ion-input="settings.myName = ($event.target as HTMLIonInputElement).value as string"
                             @ion-blur="saveSettings"
@@ -169,10 +169,10 @@
 
                 <ion-item-group>
                     <ion-item-divider>
-                        <ion-label>Notifications</ion-label>
+                        <ion-label>Meldingen</ion-label>
                     </ion-item-divider>
                     <ion-item>
-                        <ion-label>Remind me the evening before</ion-label>
+                        <ion-label>Herinner me de avond ervoor</ion-label>
                         <ion-toggle
                             slot="end"
                             :checked="settings.notificationsEnabled"
@@ -180,26 +180,26 @@
                         />
                     </ion-item>
                     <ion-item v-if="settings.notificationsEnabled">
-                        <ion-label>Reminder time</ion-label>
+                        <ion-label>Herinneringstijd</ion-label>
                         <ion-datetime-button slot="end" datetime="notif-time" />
                     </ion-item>
                 </ion-item-group>
 
                 <ion-item-group>
                     <ion-item-divider>
-                        <ion-label>Imported schedules</ion-label>
+                        <ion-label>Geïmporteerde schema's</ion-label>
                     </ion-item-divider>
                     <ion-item v-for="person in people" :key="person.name">
                         <ion-label>
                             <h3>{{ person.name }}</h3>
-                            <p>Imported {{ formatDate(person.importedAt) }}</p>
+                            <p>Geïmporteerd op {{ formatDate(person.importedAt) }}</p>
                         </ion-label>
                         <ion-button slot="end" fill="clear" color="danger" @click="onRemovePerson(person.name)">
                             <ion-icon slot="icon-only" :icon="trashOutline" />
                         </ion-button>
                     </ion-item>
                     <ion-item v-if="people.length === 0">
-                        <ion-label color="medium">No imported schedules yet</ion-label>
+                        <ion-label color="medium">Nog geen geïmporteerde schema's</ion-label>
                     </ion-item>
                 </ion-item-group>
 

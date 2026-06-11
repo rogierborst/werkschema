@@ -24,7 +24,7 @@ export function useShare() {
         const settingsStore = useSettingsStore()
         const payload: SharePayload = {
             version: 1,
-            name: settingsStore.settings.myName || 'Unknown',
+            name: settingsStore.settings.myName || 'Onbekend',
             shifts: shiftsStore.shifts,
         }
         return `werkschema://import?data=${encodePayload(payload)}`
@@ -46,11 +46,11 @@ export function useShare() {
     async function shareSchedule() {
         const link = buildDeepLink()
         const settingsStore = useSettingsStore()
-        const name = settingsStore.settings.myName || 'My'
+        const name = settingsStore.settings.myName || 'Iemand'
         await Share.share({
             title: 'Werkschema',
             text: `📅 ${name} heeft zijn/haar werkschema gedeeld!\n\nKopieer de link hieronder en plak hem in Werkschema (Instellingen → Importeer):\n\n${link}`,
-            dialogTitle: 'Share your schedule',
+            dialogTitle: 'Deel je schema',
         })
     }
 
