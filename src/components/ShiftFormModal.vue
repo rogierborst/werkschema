@@ -33,7 +33,7 @@
           <ion-radio value="evening" label-placement="end">🌙 Avond</ion-radio>
         </ion-item>
         <ion-item>
-          <ion-radio value="custom" label-placement="end">✏️ Anders...</ion-radio>
+          <ion-radio value="custom" label-placement="end">🚩 Anders...</ion-radio>
         </ion-item>
       </ion-radio-group>
 
