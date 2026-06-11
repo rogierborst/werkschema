@@ -1,7 +1,7 @@
 {
-  "name": "werkschema",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "vue-vite"
+    "name": "werkschema",
+    "integrations": {
+        "capacitor": {}
+    },
+    "type": "vue-vite"
 }

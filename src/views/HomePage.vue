@@ -1,31 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import {
-  IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon,
-  IonContent, IonFab, IonFabButton,
-} from '@ionic/vue'
-import { shareOutline, settingsOutline, addOutline } from 'ionicons/icons'
-import { useShare } from '@/composables/useShare'
-import ShiftFormModal from '@/components/ShiftFormModal.vue'
-import FilterBar from '@/components/home/FilterBar.vue'
-import ShiftList from '@/components/home/ShiftList.vue'
-import type { Shift, ShiftEntry } from '@/types'
+    import { ref } from 'vue'
+    import {
+        IonPage,
+        IonHeader,
+        IonToolbar,
+        IonTitle,
+        IonButtons,
+        IonButton,
+        IonIcon,
+        IonContent,
+        IonFab,
+        IonFabButton,
+    } from '@ionic/vue'
+    import { shareOutline, settingsOutline, addOutline } from 'ionicons/icons'
+    import { useShare } from '@/composables/useShare'
+    import ShiftFormModal from '@/components/ShiftFormModal.vue'
+    import FilterBar from '@/components/home/FilterBar.vue'
+    import ShiftList from '@/components/home/ShiftList.vue'
+    import type { Shift, ShiftEntry } from '@/types'
 
-const { shareSchedule } = useShare()
+    const { shareSchedule } = useShare()
 
-const isAddModalOpen = ref(false)
-const editingShift = ref<Shift | undefined>(undefined)
-const activeFilter = ref('all')
+    const isAddModalOpen = ref(false)
+    const editingShift = ref<Shift | undefined>(undefined)
+    const activeFilter = ref('all')
 
-function onEditShift(shift: ShiftEntry) {
-  editingShift.value = {
-    id: shift.id,
-    date: shift.date,
-    type: shift.type,
-    customLabel: shift.customLabel,
-  }
-  isAddModalOpen.value = true
-}
+    function onEditShift(shift: ShiftEntry) {
+        editingShift.value = {
+            id: shift.id,
+            date: shift.date,
+            type: shift.type,
+            customLabel: shift.customLabel,
+        }
+        isAddModalOpen.value = true
+    }
 </script>
 
 <template>
@@ -34,7 +42,7 @@ function onEditShift(shift: ShiftEntry) {
             <ion-toolbar>
                 <ion-title>Werkschema</ion-title>
                 <ion-buttons slot="end">
-                    <ion-button @click="shareSchedule()" title="Share schedule">
+                    <ion-button title="Share schedule" @click="shareSchedule()">
                         <ion-icon slot="icon-only" :icon="shareOutline" />
                     </ion-button>
                     <ion-button router-link="/settings" title="Settings">
@@ -64,7 +72,7 @@ function onEditShift(shift: ShiftEntry) {
 </template>
 
 <style scoped>
-ion-fab {
-  margin-bottom: env(safe-area-inset-bottom);
-}
+    ion-fab {
+        margin-bottom: env(safe-area-inset-bottom);
+    }
 </style>

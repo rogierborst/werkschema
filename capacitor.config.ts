@@ -1,15 +1,15 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'nl.werkschema.app',
-  appName: 'Werkschema',
-  webDir: 'dist',
-  plugins: {
-    LocalNotifications: {
-      smallIcon: 'ic_stat_icon_config_sample',
-      iconColor: '#488AFF',
+    appId: 'nl.werkschema.app',
+    appName: 'Werkschema',
+    webDir: 'dist',
+    plugins: {
+        LocalNotifications: {
+            smallIcon: 'ic_stat_icon_config_sample',
+            iconColor: '#488AFF',
+        },
     },
-  },
-};
+}
 
-export default config;
+export default config
