@@ -3,13 +3,11 @@ http://ionicframework.com/docs/theming/ */
 
 /* ─── Light theme ──────────────────────────────────────────────────────────── */
 :root {
-    /* App-wide background — change these two together (rgb is needed for alpha) */
+    /* App-wide background */
     --ion-background-color: #ded9d3;
-    --ion-background-color-rgb: 222, 217, 211;
 
     /* App-wide text color */
     --ion-text-color: #1a1a2e;
-    --ion-text-color-rgb: 26, 26, 46;
 
     /* Toolbar (header bar) background */
     --ion-toolbar-background: #a9a7a3;
@@ -44,10 +42,13 @@ http://ionicframework.com/docs/theming/ */
 }
 
 /* ─── Dark theme (activated by .ion-palette-dark on <html>) ────────────────── */
-/* Must match .ion-palette-dark.md — Ionic's own dark vars use this higher-specificity selector */
+/* Must match .ion-palette-dark.md — Ionic's own dark vars use this higher-specificity selector.
+   The -rgb variants are kept here because Ionic overlay components (modal, toast, etc.) use
+   rgba(var(--ion-background-color-rgb, 255,255,255), alpha) — without them the fallback is
+   white, which breaks dark overlays. */
 .ion-palette-dark.md {
     --ion-background-color: #192228;
-    --ion-background-color-rgb: 42, 35, 30;
+    --ion-background-color-rgb: 25, 34, 40;
 
     --ion-text-color: #e8eaf6;
     --ion-text-color-rgb: 232, 234, 246;
