@@ -1,5 +1,11 @@
 export type ShiftType = 'morning' | 'evening' | 'custom'
 
+export const SHIFT_META: Record<ShiftType, { icon: string; label: string }> = {
+    morning: { icon: '☀️', label: 'Ochtend' },
+    evening: { icon: '🌙', label: 'Avond' },
+    custom:  { icon: '🚩', label: 'Anders' },
+}
+
 export interface Shift {
     id: string
     date: string // YYYY-MM-DD

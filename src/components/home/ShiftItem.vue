@@ -2,6 +2,7 @@
     import { computed } from 'vue'
     import { IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonLabel, IonIcon } from '@ionic/vue'
     import { trashOutline } from 'ionicons/icons'
+    import { SHIFT_META } from '@/types'
     import type { ShiftEntry } from '@/types'
     import DayName from '@/components/ShiftItem/DayName.vue';
 
@@ -11,12 +12,6 @@
         edit: []
         delete: []
     }>()
-
-    function shiftParts(shift: ShiftEntry): { icon: string; label: string } {
-        if (shift.type === 'morning') return { icon: '☀️', label: 'Ochtend' }
-        if (shift.type === 'evening') return { icon: '🌙', label: 'Avond' }
-        return { icon: '🚩', label: shift.customLabel || 'Anders' }
-    }
 
     const dateParts = computed(() => {
         const date = new Date(props.shift.date + 'T00:00:00')
@@ -42,8 +37,8 @@
         <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
             <DayName slot="start" :shift />
             <ion-label>
-                <span class="shift-icon">{{ shiftParts(shift).icon }}</span>
-                <span class="shift-type">{{ shiftParts(shift).label }}</span>
+                <span class="shift-icon">{{ SHIFT_META[shift.type].icon }}</span>
+                <span class="shift-type">{{ shift.type === 'custom' ? (shift.customLabel || SHIFT_META.custom.label) : SHIFT_META[shift.type].label }}</span>
             </ion-label>
             <span slot="end" class="date-label">{{ dateParts.label }}</span>
         </ion-item>
