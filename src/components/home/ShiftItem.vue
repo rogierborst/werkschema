@@ -53,14 +53,6 @@
         --inner-padding-end: 16px;
     }
 
-    ion-label {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-
     .date-label {
         font-size: 0.9rem;
         color: var(--ion-color-medium);
