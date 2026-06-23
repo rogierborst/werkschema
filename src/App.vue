@@ -29,7 +29,7 @@
         await scheduleNextDayReminder()
 
         // Handle deep links (app opened via werkschema:// URL)
-        App.addListener('appUrlOpen', async ({ url }) => {
+        await App.addListener('appUrlOpen', async ({ url }) => {
             const payload = parseDeepLink(url)
             if (!payload) return
             await peopleStore.importPerson({
@@ -37,7 +37,8 @@
                 shifts: payload.shifts,
                 importedAt: new Date().toISOString(),
             })
-            router.push('/home')
+
+            await router.push('/home')
         })
     })
 </script>
