@@ -5,7 +5,6 @@
     import { useShiftsStore } from '@/stores/shifts'
     import { usePeopleStore } from '@/stores/people'
     import { useSettingsStore } from '@/stores/settings'
-    import { useNotifications } from '@/composables/useNotifications'
     import ShiftItem from '@/components/home/ShiftItem.vue'
     import type { ShiftEntry } from '@/types'
 
@@ -24,8 +23,6 @@
     const shiftsStore = useShiftsStore()
     const peopleStore = usePeopleStore()
     const settingsStore = useSettingsStore()
-    const { scheduleNextDayReminder } = useNotifications()
-
     const todayStr = new Date().toISOString().split('T')[0]
     const snapAnchorRef = ref<HTMLElement | null>(null)
 
@@ -72,7 +69,6 @@
         } else {
             await peopleStore.removeShiftFromPerson(shift.ownerName, shift.id)
         }
-        await scheduleNextDayReminder()
     }
 
     onMounted(async () => {

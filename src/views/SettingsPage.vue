@@ -26,12 +26,10 @@
     import { useSettingsStore } from '@/stores/settings'
     import { usePeopleStore } from '@/stores/people'
     import { useShare } from '@/composables/useShare'
-    import { useNotifications } from '@/composables/useNotifications'
 
     const settingsStore = useSettingsStore()
     const peopleStore = usePeopleStore()
     const { parseDeepLink } = useShare()
-    const { scheduleNextDayReminder } = useNotifications()
 
     const settings = computed(() => settingsStore.settings)
     const people = computed(() => peopleStore.people)
@@ -81,16 +79,14 @@
 
     async function onToggleNotifications(ev: CustomEvent) {
         await settingsStore.update({ notificationsEnabled: ev.detail.checked })
-        await scheduleNextDayReminder()
     }
 
     async function onTimeChange(ev: CustomEvent) {
         const value = ev.detail.value as string
         if (!value) return
-        // IonDatetime returns full ISO string; extract HH:MM
-        const time = value.includes('T') ? value.split('T')[1].substring(0, 5) : value.substring(0, 5)
+        const d = new Date(value)
+        const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
         await settingsStore.update({ notificationTime: time })
-        await scheduleNextDayReminder()
     }
 
     async function onRemovePerson(name: string) {

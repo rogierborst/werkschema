@@ -17,14 +17,12 @@
         IonDatetimeButton,
     } from '@ionic/vue'
     import { useShiftsStore } from '@/stores/shifts'
-    import { useNotifications } from '@/composables/useNotifications'
     import type { Shift, ShiftType } from '@/types'
 
     const props = defineProps<{ isOpen: boolean; shift?: Shift }>()
     const emit = defineEmits<{ (e: 'did-dismiss'): void }>()
 
     const shiftsStore = useShiftsStore()
-    const { scheduleNextDayReminder } = useNotifications()
 
     const todayStr = new Date().toISOString().split('T')[0]
     let lastUsedDate = todayStr
@@ -73,7 +71,6 @@
             customLabel.value = ''
         }
 
-        await scheduleNextDayReminder()
         emit('did-dismiss')
     }
 </script>

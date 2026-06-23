@@ -14,7 +14,7 @@
     const peopleStore = usePeopleStore()
     const settingsStore = useSettingsStore()
     const { parseDeepLink } = useShare()
-    const { requestPermission, scheduleNextDayReminder } = useNotifications()
+    const { requestPermission, scheduleAllReminders } = useNotifications()
 
     watch(
         () => settingsStore.settings.darkMode,
@@ -26,7 +26,21 @@
         await Promise.all([settingsStore.load(), shiftsStore.load(), peopleStore.load()])
 
         await requestPermission()
-        await scheduleNextDayReminder()
+        await scheduleAllReminders()
+
+        shiftsStore.$onAction(({ name, after }) => {
+            if (['addShift', 'updateShift', 'removeShift'].includes(name)) {
+                after(() => scheduleAllReminders())
+            }
+        })
+
+        settingsStore.$onAction(({ name, args, after }) => {
+            if (name !== 'update') return
+            const patch = args[0] as Record<string, unknown>
+            if ('notificationTime' in patch || 'notificationsEnabled' in patch) {
+                after(() => scheduleAllReminders())
+            }
+        })
 
         // Handle deep links (app opened via werkschema:// URL)
         await App.addListener('appUrlOpen', async ({ url }) => {
