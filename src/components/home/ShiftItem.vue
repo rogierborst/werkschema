@@ -2,9 +2,10 @@
     import { computed } from 'vue'
     import { IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonLabel, IonIcon } from '@ionic/vue'
     import { trashOutline } from 'ionicons/icons'
-    import { SHIFT_META } from '@/types'
     import type { ShiftEntry } from '@/types'
     import DayName from '@/components/ShiftItem/DayName.vue';
+    import TypeIcon from '@/components/ShiftItem/TypeIcon.vue';
+    import TypeLabel from '@/components/ShiftItem/TypeLabel.vue';
 
     const props = defineProps<{ shift: ShiftEntry }>()
 
@@ -36,10 +37,7 @@
     <ion-item-sliding>
         <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
             <DayName slot="start" :shift />
-            <ion-label>
-                <span class="shift-icon">{{ SHIFT_META[shift.type].icon }}</span>
-                <span class="shift-type">{{ shift.type === 'custom' ? (shift.customLabel || SHIFT_META.custom.label) : SHIFT_META[shift.type].label }}</span>
-            </ion-label>
+            <TypeLabel :shift />
             <span slot="end" class="date-label">{{ dateParts.label }}</span>
         </ion-item>
         <ion-item-options side="end">
@@ -62,17 +60,6 @@
         gap: 10px;
         white-space: nowrap;
         overflow: hidden;
-    }
-
-    .shift-icon {
-        font-size: 1.3rem;
-        flex-shrink: 0;
-    }
-
-    .shift-type {
-        font-size: 1rem;
-        font-weight: 500;
-        flex-shrink: 0;
     }
 
     .date-label {

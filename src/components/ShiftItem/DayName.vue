@@ -24,10 +24,11 @@ const dayName = computed(() => {
     width: 48px;
     height: 48px;
     border-radius: 10px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    text-shadow: 0 -1px 0 black, 0 1px 0 white;
     flex-shrink: 0;
     margin-right: 14px;
+
 }
 </style>

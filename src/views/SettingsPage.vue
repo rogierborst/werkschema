@@ -33,6 +33,12 @@
 
     const settings = computed(() => settingsStore.settings)
     const people = computed(() => peopleStore.people)
+
+    const notificationTimeISO = computed(() => {
+        const [h, m] = (settings.value.notificationTime ?? '').split(':').map(Number)
+        if (isNaN(h) || isNaN(m)) return undefined
+        return `2000-01-01T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`
+    })
     const pastedLink = ref('')
     const importError = ref('')
     const importSuccess = ref('')
@@ -85,6 +91,7 @@
         const value = ev.detail.value as string
         if (!value) return
         const d = new Date(value)
+        if (isNaN(d.getTime())) return
         const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
         await settingsStore.update({ notificationTime: time })
     }
@@ -230,7 +237,7 @@
                 <ion-datetime
                     id="notif-time"
                     presentation="time"
-                    :value="settings.notificationTime"
+                    :value="notificationTimeISO"
                     @ion-change="onTimeChange"
                 />
             </ion-modal>

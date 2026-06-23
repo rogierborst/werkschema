@@ -100,13 +100,19 @@
             </ion-item>
             <ion-radio-group v-model="selectedType">
                 <ion-item>
-                    <ion-radio value="morning" label-placement="end">{{ SHIFT_META.morning.icon }} {{ SHIFT_META.morning.label }}</ion-radio>
+                    <ion-radio value="morning" label-placement="end">
+                        {{ SHIFT_META.morning.icon }} {{ SHIFT_META.morning.label }}
+                    </ion-radio>
                 </ion-item>
                 <ion-item>
-                    <ion-radio value="evening" label-placement="end">{{ SHIFT_META.evening.icon }} {{ SHIFT_META.evening.label }}</ion-radio>
+                    <ion-radio value="evening" label-placement="end">
+                        {{ SHIFT_META.evening.icon }} {{ SHIFT_META.evening.label }}
+                    </ion-radio>
                 </ion-item>
                 <ion-item>
-                    <ion-radio value="custom" label-placement="end">{{ SHIFT_META.custom.icon }} {{ SHIFT_META.custom.label }}...</ion-radio>
+                    <ion-radio value="custom" label-placement="end">
+                        {{ SHIFT_META.custom.icon }} {{ SHIFT_META.custom.label }}...
+                    </ion-radio>
                 </ion-item>
             </ion-radio-group>
 
