@@ -3,6 +3,7 @@
     import { IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonLabel, IonIcon } from '@ionic/vue'
     import { trashOutline } from 'ionicons/icons'
     import type { ShiftEntry } from '@/types'
+    import DayName from '@/components/ShiftItem/DayName.vue';
 
     const props = defineProps<{ shift: ShiftEntry }>()
 
@@ -26,24 +27,20 @@
         const yesterday = new Date(today)
         yesterday.setDate(yesterday.getDate() - 1)
 
-        const dayName = date.toLocaleDateString('nl-NL', { weekday: 'short' }).toUpperCase()
-
         let label: string
         if (date.getTime() === today.getTime()) label = 'Vandaag'
         else if (date.getTime() === tomorrow.getTime()) label = 'Morgen'
         else if (date.getTime() === yesterday.getTime()) label = 'Gisteren'
         else label = date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
 
-        return { dayName, label }
+        return { label }
     })
 </script>
 
 <template>
     <ion-item-sliding>
         <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
-            <div slot="start" class="day-badge" :style="{ background: shift.color, color: shift.textColor }">
-                {{ dateParts.dayName }}
-            </div>
+            <DayName slot="start" :shift />
             <ion-label>
                 <span class="shift-icon">{{ shiftParts(shift).icon }}</span>
                 <span class="shift-type">{{ shiftParts(shift).label }}</span>
@@ -62,20 +59,6 @@
     ion-item {
         --min-height: 64px;
         --inner-padding-end: 16px;
-    }
-
-    .day-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        flex-shrink: 0;
-        margin-right: 14px;
     }
 
     ion-label {
