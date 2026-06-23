@@ -1,0 +1,40 @@
+/* ─── Shift row gradients ──────────────────────────────────────────────────────
+   Classes are applied by ShiftItem.vue:
+     .day-shift    → morning shifts
+     .night-shift  → evening shifts
+     .custom-shift → custom shifts
+     .is-today     → combined with any of the above for today's shift
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.day-shift ion-item {
+    --background: linear-gradient(to bottom, #dceeff, #c5dcf5);
+    --color: #1a1a2e;
+}
+.day-shift.is-today ion-item {
+    --background: linear-gradient(to bottom, #a8ccff, #7ab5f0);
+}
+
+.night-shift ion-item {
+    --background: linear-gradient(to bottom, #1e3a5f, #0d1f38);
+    --color: #ffffff;
+}
+.night-shift.is-today ion-item {
+    --background: linear-gradient(to bottom, #2a5080, #142e58);
+}
+
+.custom-shift ion-item {
+    --background: linear-gradient(to bottom, #fde8c8, #f5d0a0);
+    --color: #1a1a2e;
+}
+.custom-shift.is-today ion-item {
+    --background: linear-gradient(to bottom, #f5c878, #f0a840);
+}
+
+/* ─── Date label ───────────────────────────────────────────────────────────── */
+.day-shift .date-label,
+.custom-shift .date-label {
+    color: rgba(0, 0, 0, 0.7);
+}
+.night-shift .date-label {
+    color: rgba(255, 255, 255, 0.9);
+}

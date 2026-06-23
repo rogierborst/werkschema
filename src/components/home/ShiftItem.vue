@@ -13,6 +13,12 @@
         delete: []
     }>()
 
+    const TYPE_CLASS: Record<string, string> = {
+        morning: 'day-shift',
+        evening: 'night-shift',
+        custom:  'custom-shift',
+    }
+
     const dateLabel = computed(() => {
         const date = new Date(props.shift.date + 'T00:00:00')
         const today = new Date()
@@ -25,14 +31,25 @@
         if (date.getTime() === today.getTime()) return 'Vandaag'
         if (date.getTime() === tomorrow.getTime()) return 'Morgen'
         if (date.getTime() === yesterday.getTime()) return 'Gisteren'
-        
+
         return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+    })
+
+    const shiftClasses = computed(() => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const isToday = new Date(props.shift.date + 'T00:00:00').getTime() === today.getTime()
+        return [TYPE_CLASS[props.shift.type] ?? 'custom-shift', isToday ? 'is-today' : null]
     })
 </script>
 
 <template>
-    <ion-item-sliding>
-        <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
+    <ion-item-sliding :class="shiftClasses">
+        <ion-item
+            :button="shift.isOwn"
+            :detail="false"
+            @click="shift.isOwn ? emit('edit') : undefined"
+        >
             <DayName slot="start" :shift />
             <TypeLabel :shift />
             <span slot="end" class="date-label">{{ dateLabel }}</span>
@@ -53,7 +70,7 @@
 
     .date-label {
         font-size: 0.9rem;
-        color: var(--ion-color-medium);
+        font-weight: 500;
         flex-shrink: 0;
     }
 </style>

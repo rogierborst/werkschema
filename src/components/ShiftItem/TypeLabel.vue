@@ -34,5 +34,6 @@
         font-size: 1rem;
         font-weight: 500;
         flex-shrink: 0;
+        opacity: 0.65;
     }
 </style>
