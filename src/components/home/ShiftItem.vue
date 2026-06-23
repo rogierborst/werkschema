@@ -13,7 +13,7 @@
         delete: []
     }>()
 
-    const dateParts = computed(() => {
+    const dateLabel = computed(() => {
         const date = new Date(props.shift.date + 'T00:00:00')
         const today = new Date()
         today.setHours(0, 0, 0, 0)
@@ -22,13 +22,11 @@
         const yesterday = new Date(today)
         yesterday.setDate(yesterday.getDate() - 1)
 
-        let label: string
-        if (date.getTime() === today.getTime()) label = 'Vandaag'
-        else if (date.getTime() === tomorrow.getTime()) label = 'Morgen'
-        else if (date.getTime() === yesterday.getTime()) label = 'Gisteren'
-        else label = date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-
-        return { label }
+        if (date.getTime() === today.getTime()) return 'Vandaag'
+        if (date.getTime() === tomorrow.getTime()) return 'Morgen'
+        if (date.getTime() === yesterday.getTime()) return 'Gisteren'
+        
+        return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
     })
 </script>
 
@@ -37,7 +35,7 @@
         <ion-item :button="shift.isOwn" :detail="false" @click="shift.isOwn ? emit('edit') : undefined">
             <DayName slot="start" :shift />
             <TypeLabel :shift />
-            <span slot="end" class="date-label">{{ dateParts.label }}</span>
+            <span slot="end" class="date-label">{{ dateLabel }}</span>
         </ion-item>
         <ion-item-options side="end">
             <ion-item-option color="danger" @click="emit('delete')">
