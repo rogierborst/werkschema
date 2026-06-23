@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useSettingsStore } from '@/stores/settings';
-import { computed } from 'vue';
-import { IonItem, IonItemDivider, IonItemGroup, IonLabel, IonToggle } from '@ionic/vue';
+    import { useSettingsStore } from '@/stores/settings'
+    import { computed } from 'vue'
+    import { IonItem, IonItemDivider, IonItemGroup, IonLabel, IonToggle } from '@ionic/vue'
 
-const settingsStore = useSettingsStore()
-const settings = computed(() => settingsStore.settings)
+    const settingsStore = useSettingsStore()
+    const settings = computed(() => settingsStore.settings)
 
-async function onToggleDarkMode(ev: CustomEvent) {
-    await settingsStore.update({ darkMode: ev.detail.checked })
-}
+    async function onToggleDarkMode(ev: CustomEvent) {
+        await settingsStore.update({ darkMode: ev.detail.checked })
+    }
 </script>
 
 <template>

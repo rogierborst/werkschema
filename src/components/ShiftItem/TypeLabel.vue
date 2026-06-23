@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { SHIFT_META, ShiftEntry } from '@/types';
-import { computed } from 'vue';
-import TypeIcon from '@/components/ShiftItem/TypeIcon.vue';
+    import { SHIFT_META, ShiftEntry } from '@/types'
+    import { computed } from 'vue'
+    import TypeIcon from '@/components/ShiftItem/TypeIcon.vue'
 
-const props = defineProps< {  shift: ShiftEntry }>()
+    const props = defineProps<{ shift: ShiftEntry }>()
 
-const label = computed(() => {
-    if (props.shift.type === 'custom') {
-        return props.shift.customLabel || SHIFT_META.custom.label
-    }
+    const label = computed(() => {
+        if (props.shift.type === 'custom') {
+            return props.shift.customLabel || SHIFT_META.custom.label
+        }
 
-    return SHIFT_META[props.shift.type].label;
-})
+        return SHIFT_META[props.shift.type].label
+    })
 </script>
 
 <template>
@@ -22,15 +22,15 @@ const label = computed(() => {
 </template>
 
 <style scoped>
-IonLabel {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-}
+    IonLabel {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-.shift-type {
-    font-size: 1rem;
-    font-weight: 500;
-    flex-shrink: 0;
-}
+    .shift-type {
+        font-size: 1rem;
+        font-weight: 500;
+        flex-shrink: 0;
+    }
 </style>

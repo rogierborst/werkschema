@@ -117,7 +117,10 @@
         <shift-form-modal
             :is-open="isAddModalOpen"
             :shift="editingShift"
-            @did-dismiss="isAddModalOpen = false; editingShift = undefined"
+            @did-dismiss="
+                isAddModalOpen = false
+                editingShift = undefined
+            "
         />
     </ion-page>
 </template>

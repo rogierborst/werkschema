@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useSettingsStore } from '@/stores/settings';
-import { computed } from 'vue';
-import { IonInput, IonItem, IonItemDivider, IonItemGroup, IonLabel } from '@ionic/vue';
+    import { useSettingsStore } from '@/stores/settings'
+    import { computed } from 'vue'
+    import { IonInput, IonItem, IonItemDivider, IonItemGroup, IonLabel } from '@ionic/vue'
 
-const settingsStore = useSettingsStore()
-const settings = computed(() => settingsStore.settings)
+    const settingsStore = useSettingsStore()
+    const settings = computed(() => settingsStore.settings)
 
-async function saveSettings() {
-    await settingsStore.update({ myName: settings.value.myName })
-}
+    async function saveSettings() {
+        await settingsStore.update({ myName: settings.value.myName })
+    }
 </script>
 
 <template>

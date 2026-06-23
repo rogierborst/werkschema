@@ -1,11 +1,10 @@
 <script setup lang="ts">
     import { computed } from 'vue'
-    import { IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonLabel, IonIcon } from '@ionic/vue'
+    import { IonItem, IonItemSliding, IonItemOptions, IonItemOption, IonIcon } from '@ionic/vue'
     import { trashOutline } from 'ionicons/icons'
     import type { ShiftEntry } from '@/types'
-    import DayName from '@/components/ShiftItem/DayName.vue';
-    import TypeIcon from '@/components/ShiftItem/TypeIcon.vue';
-    import TypeLabel from '@/components/ShiftItem/TypeLabel.vue';
+    import DayName from '@/components/ShiftItem/DayName.vue'
+    import TypeLabel from '@/components/ShiftItem/TypeLabel.vue'
 
     const props = defineProps<{ shift: ShiftEntry }>()
 

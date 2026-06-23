@@ -9,10 +9,10 @@
         IonContent,
         IonList,
     } from '@ionic/vue'
-    import ThemeSettings from '@/components/Settings/ThemeSettings.vue';
-    import ProfileEditor from '@/components/Settings/ProfileEditor.vue';
-    import NotificationSettings from '@/components/Settings/NotificationSettings.vue';
-    import ScheduleImports from '@/components/Settings/ScheduleImports.vue';
+    import ThemeSettings from '@/components/Settings/ThemeSettings.vue'
+    import ProfileEditor from '@/components/Settings/ProfileEditor.vue'
+    import NotificationSettings from '@/components/Settings/NotificationSettings.vue'
+    import ScheduleImports from '@/components/Settings/ScheduleImports.vue'
 </script>
 
 <template>
@@ -30,7 +30,7 @@
             <ion-list>
                 <ThemeSettings />
 
-               <ProfileEditor />
+                <ProfileEditor />
 
                 <NotificationSettings />
 

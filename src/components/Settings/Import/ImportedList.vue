@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { trashOutline } from 'ionicons/icons';
-import { IonButton, IonIcon, IonItem, IonItemDivider, IonItemGroup, IonLabel } from '@ionic/vue';
-import { usePeopleStore } from '@/stores/people';
-import { computed } from 'vue';
+    import { trashOutline } from 'ionicons/icons'
+    import { IonButton, IonIcon, IonItem, IonItemDivider, IonItemGroup, IonLabel } from '@ionic/vue'
+    import { usePeopleStore } from '@/stores/people'
+    import { computed } from 'vue'
 
-const peopleStore = usePeopleStore()
-const people = computed(() => peopleStore.people)
-async function onRemovePerson(name: string) {
-    await peopleStore.removePerson(name)
-}
+    const peopleStore = usePeopleStore()
+    const people = computed(() => peopleStore.people)
+    async function onRemovePerson(name: string) {
+        await peopleStore.removePerson(name)
+    }
 
-function formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('nl-NL', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    })
-}
+    function formatDate(iso: string): string {
+        return new Date(iso).toLocaleDateString('nl-NL', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        })
+    }
 </script>
 
 <template>

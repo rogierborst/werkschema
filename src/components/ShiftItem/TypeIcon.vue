@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { SHIFT_META, ShiftEntry } from '@/types';
+    import { SHIFT_META, ShiftEntry } from '@/types'
 
-defineProps<{ shift: ShiftEntry }>()
+    defineProps<{ shift: ShiftEntry }>()
 </script>
 
 <template>
@@ -9,8 +9,8 @@ defineProps<{ shift: ShiftEntry }>()
 </template>
 
 <style scoped>
-.shift-icon {
-    font-size: 1.3rem;
-    flex-shrink: 0;
-}
+    .shift-icon {
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
 </style>
