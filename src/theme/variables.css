@@ -3,19 +3,19 @@ http://ionicframework.com/docs/theming/ */
 
 /* ─── Light theme ──────────────────────────────────────────────────────────── */
 :root {
-    /* App-wide background */
-    --ion-background-color: #ded9d3;
+    /* App-wide background — light blue base (blobs render on top of this) */
+    --ion-background-color: #c8dff2;
 
     /* App-wide text color */
     --ion-text-color: #1a1a2e;
 
     /* Toolbar (header bar) background */
-    --ion-toolbar-background: #a9a7a3;
+    --ion-toolbar-background: rgba(224, 242, 254, 0.88);
     --ion-toolbar-color: #1a1a2e;
 
-    /* List item background (shift rows override this with their own gradient) */
-    --ion-item-background: #ded9d3;
-    --ion-item-border-color: rgba(0, 0, 0, 20%);
+    /* List/item background — transparent so blob background shows through */
+    --ion-item-background: transparent;
+    --ion-item-border-color: rgba(0, 0, 0, 12%);
 
     /* Stepped background colors — gradual mix of background toward text color.
        Regenerate these at https://ionicframework.com/docs/theming/themes
@@ -47,13 +47,13 @@ http://ionicframework.com/docs/theming/ */
    rgba(var(--ion-background-color-rgb, 255,255,255), alpha) — without them the fallback is
    white, which breaks dark overlays. */
 .ion-palette-dark.md {
-    --ion-background-color: #192228;
-    --ion-background-color-rgb: 25, 34, 40;
+    --ion-background-color: #16100c;
+    --ion-background-color-rgb: 22, 16, 12;
 
     --ion-text-color: #e8eaf6;
     --ion-text-color-rgb: 232, 234, 246;
 
-    --ion-toolbar-background: #10191e;
+    --ion-toolbar-background: #0e0a07;
     --ion-toolbar-color: #e8eaf6;
 
     --ion-item-background: #10191e;

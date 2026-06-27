@@ -18,15 +18,19 @@
     import ShiftFormModal from '@/components/ShiftFormModal.vue'
     import FilterBar from '@/components/home/FilterBar.vue'
     import ShiftList from '@/components/home/ShiftList.vue'
+    import BlobBackground from '@/components/BlobBackground.vue'
+    import { useSettingsStore } from '@/stores/settings'
     import type { Shift, ShiftEntry } from '@/types'
 
     const { shareSchedule } = useShare()
+    const settingsStore = useSettingsStore()
 
     const isAddModalOpen = ref(false)
     const editingShift = ref<Shift | undefined>(undefined)
     const activeFilter = ref('all')
     const scrollRef = ref<HTMLElement>()
     const shiftListRef = ref<InstanceType<typeof ShiftList>>()
+    const scrollY = ref(0)
 
     function onEditShift(shift: ShiftEntry) {
         editingShift.value = {
@@ -65,6 +69,11 @@
             },
             { passive: true }
         )
+        scrollRef.value?.addEventListener(
+            'scroll',
+            () => { scrollY.value = scrollRef.value?.scrollTop ?? 0 },
+            { passive: true }
+        )
     }
 
     onIonViewDidEnter(() => {
@@ -101,7 +110,8 @@
             </ion-toolbar>
         </ion-header>
 
-        <ion-content :scroll-y="false">
+        <ion-content :scroll-y="false" style="--background: transparent">
+            <blob-background v-if="settingsStore.settings.fancyBackground" :scroll-y="scrollY" />
             <div ref="scrollRef" class="snap-scroll">
                 <filter-bar v-model="activeFilter" />
                 <shift-list ref="shiftListRef" :active-filter="activeFilter" @edit-shift="onEditShift" />
@@ -129,6 +139,8 @@
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-y: contain;
+        z-index: 1;
+        background: transparent;
     }
 
     ion-fab {

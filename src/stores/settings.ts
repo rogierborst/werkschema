@@ -8,6 +8,7 @@ const DEFAULTS: AppSettings = {
     notificationsEnabled: true,
     notificationTime: '20:00',
     darkMode: false,
+    fancyBackground: true,
 }
 
 function systemDefaults(): AppSettings {

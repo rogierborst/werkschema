@@ -6,35 +6,85 @@
      .is-today     → combined with any of the above for today's shift
    ──────────────────────────────────────────────────────────────────────────── */
 
+/* ─── Shared glass chrome ───────────────────────────────────────────────────── */
+/* backdrop-filter frosted blur + top glint border */
+.day-shift ion-item::part(native),
+.night-shift ion-item::part(native),
+.custom-shift ion-item::part(native) {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255, 255, 255, 0.40);
+}
+
+/* ─── Day / morning ─────────────────────────────────────────────────────────── */
+/* Glint: bright white band at top fades into tinted glass */
 .day-shift ion-item {
-    --background: linear-gradient(to bottom, #dceeff, #c5dcf5);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75)  0px,
+        rgba(255, 255, 255, 0.75)  1px,
+        rgba(160, 215, 250, 0.44)  1px,
+        rgba(120, 190, 245, 0.44) 100%
+    );
     --color: #1a1a2e;
 }
 .day-shift.is-today ion-item {
-    --background: linear-gradient(to bottom, #a8ccff, #7ab5f0);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.80)  0px,
+        rgba(255, 255, 255, 0.80)  1px,
+        rgba(100, 180, 248, 0.52)  1px,
+        rgba(60,  155, 240, 0.52) 100%
+    );
 }
 
+/* ─── Night / evening ───────────────────────────────────────────────────────── */
 .night-shift ion-item {
-    --background: linear-gradient(to bottom, #1e3a5f, #0d1f38);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.30)  0px,
+        rgba(255, 255, 255, 0.30)  1px,
+        rgba(25,  50,  90,  0.72)  1px,
+        rgba(10,  25,  55,  0.72) 100%
+    );
     --color: #ffffff;
 }
 .night-shift.is-today ion-item {
-    --background: linear-gradient(to bottom, #2a5080, #142e58);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.35)  0px,
+        rgba(255, 255, 255, 0.35)  1px,
+        rgba(38,  78,  130, 0.76)  1px,
+        rgba(16,  42,  88,  0.76) 100%
+    );
 }
 
+/* ─── Custom ────────────────────────────────────────────────────────────────── */
 .custom-shift ion-item {
-    --background: linear-gradient(to bottom, #fde8c8, #f5d0a0);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.75)  0px,
+        rgba(255, 255, 255, 0.75)  1px,
+        rgba(200, 235, 100, 0.44)  1px,
+        rgba(170, 215,  60, 0.44) 100%
+    );
     --color: #1a1a2e;
 }
 .custom-shift.is-today ion-item {
-    --background: linear-gradient(to bottom, #f5c878, #f0a840);
+    --background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.80)  0px,
+        rgba(255, 255, 255, 0.80)  1px,
+        rgba(185, 225,  70, 0.52)  1px,
+        rgba(155, 200,  30, 0.52) 100%
+    );
 }
 
-/* ─── Date label ───────────────────────────────────────────────────────────── */
+/* ─── Date label ────────────────────────────────────────────────────────────── */
 .day-shift .date-label,
 .custom-shift .date-label {
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.65);
 }
 .night-shift .date-label {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.90);
 }
