@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref, watch } from 'vue'
+    import { ref, watch, computed } from 'vue'
     import {
         IonModal,
         IonHeader,
@@ -15,7 +15,9 @@
         IonInput,
         IonDatetime,
         IonDatetimeButton,
+        IonIcon,
     } from '@ionic/vue'
+    import { calendarOutline } from 'ionicons/icons'
     import { useShiftsStore } from '@/stores/shifts'
     import { SHIFT_META } from '@/types'
     import type { Shift, ShiftType } from '@/types'
@@ -31,6 +33,15 @@
     const selectedDate = ref(todayStr)
     const selectedType = ref<ShiftType>('morning')
     const customLabel = ref('')
+    const datetimeRef = ref<HTMLIonDatetimeElement | null>(null)
+
+    const DAY_NAMES = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
+    const MONTH_NAMES = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
+
+    const formattedDate = computed(() => {
+        const d = new Date(selectedDate.value + 'T00:00:00')
+        return `${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}, ${d.getFullYear()}`
+    })
 
     watch(
         () => props.isOpen,
@@ -67,7 +78,10 @@
             await shiftsStore.updateShift(shift)
         } else {
             await shiftsStore.addShift(shift)
-            lastUsedDate = shift.date
+            const next = new Date(shift.date)
+            next.setDate(next.getDate() + 1)
+            lastUsedDate = next.toISOString().split('T')[0]
+            selectedDate.value = lastUsedDate
             selectedType.value = 'morning'
             customLabel.value = ''
         }
@@ -89,10 +103,14 @@
 
         <ion-content class="ion-padding">
             <!-- Date picker -->
-            <ion-item>
-                <ion-label position="stacked">Datum</ion-label>
-                <ion-datetime-button datetime="shift-date" />
-            </ion-item>
+            <ion-label class="date-field-label">Datum</ion-label>
+            <div class="ion-padding-vertical date-picker-row">
+                <div class="date-picker-wrapper">
+                    <ion-datetime-button datetime="shift-date" />
+                    <span class="date-label-overlay">{{ formattedDate }}</span>
+                    <ion-icon :icon="calendarOutline" class="date-icon" />
+                </div>
+            </div>
 
             <!-- Shift type -->
             <ion-item>
@@ -134,6 +152,7 @@
         <!-- Inline date picker popover -->
         <ion-modal :keep-contents-mounted="true">
             <ion-datetime
+                ref="datetimeRef"
                 id="shift-date"
                 presentation="date"
                 :value="selectedDate"
@@ -144,3 +163,50 @@
         </ion-modal>
     </ion-modal>
 </template>
+
+<style scoped>
+.date-field-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ion-color-medium);
+    padding: 16px 16px 0;
+}
+
+.date-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-picker-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+ion-datetime-button::part(native) {
+    background-color: #ffffff;
+    padding: 10px 2.5rem 10px 14px;
+    color: transparent;
+}
+
+.date-label-overlay {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: var(--ion-text-color, #000);
+    pointer-events: none;
+}
+
+.date-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: var(--ion-color-medium);
+    pointer-events: none;
+}
+
+</style>
